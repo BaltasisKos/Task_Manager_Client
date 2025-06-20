@@ -25,81 +25,8 @@ html, body, #root, .App {
   text-align: center;
 }
 
-.left{
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  color: rgb(255, 255, 255);
-  height: 100%;
- 
-  
-}
-.right {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  color: rgb(13, 0, 255);
-  height: 100%;
- 
-  
-}
-
-.left {
-  padding-right: 30px;
-
-  
-}
-
-.login-box {
-  border: 1px solid ;         /* Border around the whole login section */
-  border-radius: 10px;
-  padding: 30px;
-  width: 100%;
-  max-width: 400px;
-  background-color: rgb(238, 238, 243);
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  align-items: center;
-}
 
 
-.right {
-  
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;  /* Center the form vertically */
-  padding: 10px;
-}
-
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 100%;     /* Fill the container */
-  max-width: 300px; /* Optional: control max size */
-}
-
-
-input {
-  padding: 10px;
-  width: auto;
-  border-radius: 5px;
-  border: solid 1px;
-}
-button {
-  padding: 10px;
-  width: auto;
-  border-radius: 5px;
-  border: none;
-  background-color: #2d23e4;
-  color: white;
-  cursor: pointer;
-}
 
 .container {
   height: 95vh;
@@ -111,7 +38,7 @@ button {
 }
 
 /* Form container with blur, rounded corners and shadow */
-.form-wrapper {
+/* .form-wrapper {
   background-color: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
   border-radius: 1rem;
@@ -121,12 +48,12 @@ button {
   color: white;
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
   text-align: center;
-}
+} */
 
 /* Title */
-.title {
+/* .title {
   font-size: 2rem;
   font-weight: 600;
   margin-bottom: 32px;
-}
+} */
 
