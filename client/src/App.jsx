@@ -2,9 +2,8 @@
 import './App.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './pages/Login';
-// import Dashboard from './pages/Dashboard';
-// import Register from './pages/Register';
 import ParticlesComponent from './components/Particles';
+import Dashboard from './pages/Dashboard';
 
 function App() {
   return (
@@ -13,10 +12,12 @@ function App() {
       <div className="content">
         <Router>
           <Routes>
-            <Route path="/" element={<Login />} />
-            {/* <Route path="/register" element={<Register />} />
-            <Route path="/dashboard" element={<Dashboard />} /> */}
+            <Route path="/" element={<Login />} />   
+           
+            <Route path="/dashboard" element={<Dashboard />}/>
           </Routes>
+
+
         </Router>
       </div>
     </div>

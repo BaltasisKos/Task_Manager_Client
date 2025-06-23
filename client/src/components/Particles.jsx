@@ -62,13 +62,13 @@ const ParticlesComponent = (props) => {
       },
       particles: {
         color: {
-          value: "#000000",
+          value: "#554FFF",
         },
         links: {
-          color: "#000000",
+          color: "#554FFF",
           distance: 200,
           enable: true,
-          opacity: 0.3,
+          opacity: 0.6,
           width: 1,
         },
         move: {
@@ -78,7 +78,7 @@ const ParticlesComponent = (props) => {
             default: "bounce",
           },
           random: true,
-          speed: 1,
+          speed: 3,
           straight: false,
         },
         number: {

@@ -1,36 +1,43 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
   const [isLoginMode, setIsLoginMode] = useState(true);
+  const navigate = useNavigate(); // 👈 Navigation hook
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+
+    // ✅ You can add real login validation here.
+    // For now, we'll just redirect to the dashboard.
+    navigate("/dashboard");
+  };
 
   return (
     <div className="relative min-h-screen flex items-center justify-center">
-      {/* Foreground Content */}
       <div className="relative z-10 w-full md:w-auto flex flex-col md:flex-row items-center justify-center gap-0 md:gap-40">
         
         {/* Left: Marketing Content */}
         <div className="h-full w-full lg:w-3/5 flex flex-col items-center justify-center px-50">
           <div className="w-full md:max-w-lg 2xl:max-w-3xl flex flex-col items-center justify-center gap-5 md:gap-y-10 2xl:-mt-20">
-            
             <p className="flex flex-col gap-0 md:gap-4 text-4xl md:text-6xl 2xl:text-6xl font-black text-center dark:text-gray-400 text-blue-600">
               <span>Task Manager</span>
             </p>
-            <span className="flex gap-1 py-1 px-3 border rounded-full text-sm md:text-base dark:border-gray-700 dark:text-blue-400 border-gray-500 text-gray-600">
+            <span className="flex gap-1 py-1 px-3 border rounded-full text-sm md:text-base border-blue text-blue-700">
               Manage all your tasks in one place!
             </span>
           </div>
         </div>
 
-        {/* Right: Form Section */}
+        {/* Right: Login/Signup Form */}
         <div className="w-[430px] bg-white p-8 rounded-2xl shadow-lg">
-          {/* Header Titles */}
           <div className="flex justify-center mb-4">
             <h2 className="text-3xl font-semibold text-center mb-10">
-              {isLoginMode ? "Welome Back!" : "Sign Up"}
+              {isLoginMode ? "Welcome Back!" : "Sign Up"}
             </h2>
           </div>
 
-          {/* Tab Controls */}
+          {/* Toggle Buttons */}
           <div className="relative flex h-12 mb-6 border border-gray-300 rounded-full overflow-hidden">
             <button
               className={`w-1/2 text-lg font-medium transition-all z-10 ${
@@ -55,8 +62,8 @@ function Login() {
             ></div>
           </div>
 
-          {/* Form Section */}
-          <form className="space-y-4">
+          {/* Form */}
+          <form onSubmit={handleLogin} className="space-y-4">
             {!isLoginMode && (
               <input
                 type="text"
@@ -80,27 +87,25 @@ function Login() {
             />
 
             {!isLoginMode && (
-            <>
-              <input
-                type="password"
-                placeholder="Confirm Password"
-                required
-                className="w-full p-3 border-b-2 border-gray-300 outline-none focus:border-cyan-500 placeholder-gray-400"
-              />
-              <select
-                required
-                className="w-full p-3 border-b-2 border-gray-300 outline-none focus:border-cyan-500 text-gray-400"
-              >
-                <option value="" disabled selected>
-                  Select Role
-                </option>
-                <option value="admin">Admin</option>
-                <option value="user">User</option>
+              <>
+                <input
+                  type="password"
+                  placeholder="Confirm Password"
+                  required
+                  className="w-full p-3 border-b-2 border-gray-300 outline-none focus:border-cyan-500 placeholder-gray-400"
+                />
+                <select
+                  required
+                  className="w-full p-3 border-b-2 border-gray-300 outline-none focus:border-cyan-500 text-gray-400"
+                >
+                  <option value="" disabled selected>
+                    Select Role
+                  </option>
+                  <option value="admin">Admin</option>
+                  <option value="user">User</option>
                 </select>
-            </>
-          )}
-
-
+              </>
+            )}
 
             {isLoginMode && (
               <div className="text-right">
@@ -110,7 +115,10 @@ function Login() {
               </div>
             )}
 
-            <button className="w-full p-3 bg-gradient-to-r from-blue-700 via-cyan-600 to-cyan-200 text-white rounded-full text-lg font-medium hover:opacity-90 transition">
+            <button
+              type="submit"
+              className="w-full p-3 bg-gradient-to-r from-blue-700 via-cyan-600 to-cyan-200 text-white rounded-full text-lg font-medium hover:opacity-90 transition"
+            >
               {isLoginMode ? "Login" : "Signup"}
             </button>
 
@@ -131,7 +139,6 @@ function Login() {
             </p>
           </form>
         </div>
-
       </div>
     </div>
   );

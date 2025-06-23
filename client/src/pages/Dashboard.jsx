@@ -1,15 +1,15 @@
-// src/pages/Dashboard.js
-import React from 'react';
+import React from 'react'
+import Sidebar from '../components/Sidebar'
 
 const Dashboard = () => {
   return (
-    <>
-    <div style={{ padding: '40px', color: '#fff' }}>
-      <h1>Welcome to the Dashboard</h1>
-      <p>You have successfully logged in.</p>
+    <div className='flex flex-row bg-neutral-100 h-screen w-screen overflow-hidden'>
+      <Sidebar/>
+      <div className='p-4'>
+      <div className='bg-teal-200'>Header</div>
+      </div>
     </div>
-    </>
-  );
-};
+  )
+}
 
-export default Dashboard;
+export default Dashboard
