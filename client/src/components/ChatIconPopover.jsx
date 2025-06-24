@@ -20,7 +20,7 @@ const ChatIconPopover = () => {
           side="top"
           align="center"
           sideOffset={8}
-          className="bg-white p-3 rounded shadow-2xl  w-64 text-sm z-50"
+          className="bg-white p-3 rounded-md shadow-lg w-64 text-sm z-50"
         >
           <div className="bg-white px-2 py-3 mb-1">
             <strong>Messanger:</strong>

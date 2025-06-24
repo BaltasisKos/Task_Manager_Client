@@ -1,8 +1,7 @@
 import React from 'react'
 import { FaTasks } from "react-icons/fa";
 import {Link} from 'react-router-dom'
-import { DASHBOARD_SIDEBAR_BOTTOM_LINKS, DASHBOARD_SIDEBAR_LINKS, DASHBOARD_SIDEBAR_LOGOUT_LINK } from './lib/consts/navigation';
-import { HiOutlineLogout } from 'react-icons/hi';
+import { DASHBOARD_SIDEBAR_BOTTOM_LINKS, DASHBOARD_SIDEBAR_LINKS } from './lib/consts/navigation';
 
 const linkClass =
 	'flex items-center gap-2 font-light px-2 py-4 mt-3  hover:bg-blue-500 hover:text-white hover:no-underline active:bg-neutral-600 rounded-lg text-base'
@@ -25,11 +24,8 @@ const Sidebar = () => {
           <SidebarLink key={item.key} item={item}/>
         ))}        
       </div>
-      <div className='flex flex-col gap-0.5 rounded-lg hover:text-white hover:no-underline hover:bg-red-600 text-red-500 cursor-pointer'>
-        {DASHBOARD_SIDEBAR_LOGOUT_LINK.map(item => (
-          <SidebarLink key={item.key} item={item}/>
-        ))} 
-       </div>
+      
+      
     </div>
   )
 }

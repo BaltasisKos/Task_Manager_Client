@@ -2,6 +2,7 @@ import React from 'react'
 import { HiOutlineSearch, HiOutlineChatAlt, HiOutlineBell } from 'react-icons/hi'
 import MyPopover from "./ChatIconPopover";
 import BellIconPop from './BellIconPop';
+import ProfileDropdown from './ProfileDropdown';
 
 const Header = () => {
   return (
@@ -12,7 +13,8 @@ const Header = () => {
       </div>
       <div className='flex items-center gap-2 mr-2'>
          <MyPopover/>
-         <BellIconPop/>      
+         <BellIconPop/>  
+         <ProfileDropdown/>    
       </div>
     </div>
   )

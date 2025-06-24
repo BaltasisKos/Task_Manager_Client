@@ -5,7 +5,7 @@ import { RiProgress5Line } from "react-icons/ri";
 import { PiMastodonLogoFill } from "react-icons/pi";
 import { RiTeamLine } from "react-icons/ri";
 import { BsFillTrash3Fill } from "react-icons/bs";
-import {HiOutlineCog, HiOutlineLogout} from "react-icons/hi"
+import {HiOutlineCog, HiOutlineQuestionMarkCircle} from "react-icons/hi"
 
 
 export const DASHBOARD_SIDEBAR_LINKS = [
@@ -59,14 +59,12 @@ export const DASHBOARD_SIDEBAR_BOTTOM_LINKS = [
 		label: 'Settings',
 		path: '/settings',
 		icon: <HiOutlineCog />
+	},
+	{
+		key: 'helpandsupport',
+		label: 'Help And Support',
+		path: '/support',
+		icon: <HiOutlineQuestionMarkCircle/>
 	}
 ]
 
-export const DASHBOARD_SIDEBAR_LOGOUT_LINK = [
-	{
-		key: 'logout',
-		label: 'Logout',
-		path: '/',
-		icon: <HiOutlineLogout/>
-	}
-]
