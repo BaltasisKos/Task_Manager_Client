@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './pages/Login';
 import ParticlesComponent from './components/Particles';
 import Dashboard from './pages/Dashboard';
+import Trash from './pages/Trash';
 
 function App() {
   return (
@@ -13,8 +14,9 @@ function App() {
         <Router>
           <Routes>
             <Route path="/" element={<Login />} />   
-           
+            
             <Route path="/dashboard" element={<Dashboard />}/>
+            <Route path="trash" element={<Trash/>}/>
           </Routes>
 
 

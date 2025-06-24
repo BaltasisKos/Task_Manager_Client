@@ -5,14 +5,14 @@ import { RiProgress5Line } from "react-icons/ri";
 import { PiMastodonLogoFill } from "react-icons/pi";
 import { RiTeamLine } from "react-icons/ri";
 import { BsFillTrash3Fill } from "react-icons/bs";
-import {HiOutlineCog} from "react-icons/hi"
+import {HiOutlineCog, HiOutlineLogout} from "react-icons/hi"
 
 
 export const DASHBOARD_SIDEBAR_LINKS = [
 	{
 		key: 'dashboard',
 		label: 'Dashboard',
-		path: '/',
+		path: '/dashboard',
 		icon: <MdSpaceDashboard />
 	},
 	{
@@ -59,4 +59,14 @@ export const DASHBOARD_SIDEBAR_BOTTOM_LINKS = [
 		label: 'Settings',
 		path: '/settings',
 		icon: <HiOutlineCog />
-	}]
+	}
+]
+
+export const DASHBOARD_SIDEBAR_LOGOUT_LINK = [
+	{
+		key: 'logout',
+		label: 'Logout',
+		path: '/',
+		icon: <HiOutlineLogout/>
+	}
+]

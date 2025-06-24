@@ -2,8 +2,11 @@
 
 
 html, body, #root, .App {
-  height: 100%;
+  height: auto;
+  min-height: 100vh;
   margin: 0;
+  padding: 0;
+  overflow: auto;
 }
 
 
@@ -17,43 +20,24 @@ html, body, #root, .App {
 .content {
   position: relative; /* important so content is above particles */
   display: flex;
-  height: 95%;
+  height: 100%;
   width: 100%;
   padding: 0 0px;
   box-sizing: border-box ;
   z-index: 1;
   text-align: center;
+  
 }
-
-
-
 
 .container {
-  height: 95vh;
-  text-align: center;
-  display: flex ;
-  justify-content: center;  /* horizontal center */
-  align-items: center;      /* vertical center */
+  min-height: 100%;
+  width: 100%;
   padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
-/* Form container with blur, rounded corners and shadow */
-/* .form-wrapper {
-  background-color: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-radius: 1rem;
-  padding: 40px;
-  max-width: 400px;
-  width: 100%;
-  color: white;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-  text-align: center;
-} */
 
-/* Title */
-/* .title {
-  font-size: 2rem;
-  font-weight: 600;
-  margin-bottom: 32px;
-} */
 

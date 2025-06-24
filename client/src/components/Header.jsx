@@ -1,5 +1,7 @@
 import React from 'react'
 import { HiOutlineSearch, HiOutlineChatAlt, HiOutlineBell } from 'react-icons/hi'
+import MyPopover from "./ChatIconPopover";
+import BellIconPop from './BellIconPop';
 
 const Header = () => {
   return (
@@ -9,15 +11,8 @@ const Header = () => {
         <input type="text" placeholder='Search...' className='text-sm focus:outline-none active:outline-none h-10 w-120 border border-gray-300 rounded-lg pl-11 pr-4'/>
       </div>
       <div className='flex items-center gap-2 mr-2'>
-        
-
-        <HiOutlineChatAlt fontSize={24}/>
-
-
-
-
-        <HiOutlineBell fontSize={24}/>
-      
+         <MyPopover/>
+         <BellIconPop/>      
       </div>
     </div>
   )
