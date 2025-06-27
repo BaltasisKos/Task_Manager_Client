@@ -24,8 +24,16 @@ const taskSlice = createSlice({
         state.tasks.push(action.payload);
         state.stats = updateStats(state.tasks);
       },
-      prepare({ title, status }) {
-        return { payload: { id: nanoid(), title, status } };
+      prepare({ title, status, team }) {
+        return {
+          payload: {
+            id: nanoid(),
+            title,
+            status,
+            team: team || "Unassigned",
+            createdAt: new Date().toISOString(),
+          },
+        };
       },
     },
     deleteTask(state, action) {
@@ -38,6 +46,7 @@ const taskSlice = createSlice({
       if (task) {
         task.title = title;
         task.status = status;
+        task.team = team;
         state.stats = updateStats(state.tasks);
       }
     },

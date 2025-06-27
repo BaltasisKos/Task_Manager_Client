@@ -20,7 +20,7 @@ function Login() {
         {/* Left: Marketing Content */}
         <div className="h-full w-full lg:w-3/5 flex flex-col items-center justify-center px-50">
           <div className="w-full md:max-w-lg 2xl:max-w-3xl flex flex-col items-center justify-center gap-5 md:gap-y-10 2xl:-mt-20">
-            <p className="flex flex-col gap-0 md:gap-4 text-4xl md:text-6xl 2xl:text-6xl font-black text-center dark:text-gray-400 text-blue-600">
+            <p className="py-3 flex flex-col gap-0 md:gap-4 text-6xl  font-bold bg-gradient-to-r from-blue-700 via-cyan-600 to-cyan-300 bg-clip-text text-transparent">
               <span>Task Manager</span>
             </p>
             <span className="flex gap-1 py-1 px-3 border rounded-full text-sm md:text-base border-blue text-blue-700">

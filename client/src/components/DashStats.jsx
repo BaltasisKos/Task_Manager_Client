@@ -1,23 +1,43 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { addTask, deleteTask, editTask, setSelectedFilter } from "../store/taskSlice";
-import { CheckCircle, Clock, ClipboardList, ListTodo } from "lucide-react";
+import {
+  addTask,
+  deleteTask,
+  editTask,
+  setSelectedFilter,
+} from "../store/taskSlice";
+import {
+  CheckCircle,
+  Clock,
+  ClipboardList,
+  ListTodo,
+} from "lucide-react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { useNavigate } from "react-router-dom";
 
 const DashStats = () => {
   const dispatch = useDispatch();
   const { tasks, selectedFilter, stats } = useSelector((state) => state.tasks);
 
   const [title, setTitle] = useState("");
+  const [team, setTeam] = useState("");
   const [status, setStatus] = useState("todo");
+  const [dueDate, setDueDate] = useState(null); // New
+  const [notes, setNotes] = useState(""); // New
 
-   // For editing:
   const [editId, setEditId] = useState(null);
   const [editTitle, setEditTitle] = useState("");
+  const [editTeam, setEditTeam] = useState("");
   const [editStatus, setEditStatus] = useState("todo");
+
+  const [showModal, setShowModal] = useState(false);
+  
+  const navigate = useNavigate();
 
   const boxes = [
     {
-      key: "total",
+      key: "allTasks",
       label: "All Tasks",
       value: stats.total,
       icon: <ClipboardList className="text-blue-500" />,
@@ -53,9 +73,21 @@ const DashStats = () => {
 
   const handleAddTask = () => {
     if (!title.trim()) return;
-    dispatch(addTask({ title, status }));
+    dispatch(
+      addTask({
+        title,
+        status,
+        team,
+        createdAt: new Date().toISOString(),
+        dueDate: dueDate ? dueDate.toISOString() : null,
+        notes,
+      })
+    );
     setTitle("");
     setStatus("todo");
+    setTeam("");
+    setDueDate(null);
+    setNotes("");
   };
 
   const handleDeleteTask = (id) => {
@@ -66,38 +98,59 @@ const DashStats = () => {
     setEditId(task.id);
     setEditTitle(task.title);
     setEditStatus(task.status);
+    setEditTeam(task.team || "");
   };
 
   const cancelEdit = () => {
     setEditId(null);
     setEditTitle("");
     setEditStatus("todo");
+    setEditTeam("");
   };
 
   const saveEdit = () => {
     if (!editTitle.trim()) return;
-    dispatch(editTask({ id: editId, title: editTitle, status: editStatus }));
+    dispatch(
+      editTask({
+        id: editId,
+        title: editTitle,
+        status: editStatus,
+        team: editTeam || "Unassigned",
+      })
+    );
     cancelEdit();
   };
 
+  const getPathForKey = (key) => {
+  const link = DASHBOARD_SIDEBAR_LINKS.find((link) => link.key === key);
+  return link ? link.path : "/dashboard"; // fallback
+};
+
   return (
-    <div>
-      {/* Boxes */}
+    <div className="relative">
+      {/* Create Task Button */}
+      <div className="flex justify-end mb-4">
+        <button
+          onClick={() => setShowModal(true)}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
+          Create Task
+        </button>
+      </div>
+
+      {/* Stats Boxes */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {boxes.map((box) => (
           <button
-            key={box.key}
-            onClick={() => dispatch(setSelectedFilter(box.key))}
-            className={`
-              p-4 rounded-xl shadow flex items-center gap-4
-              ${box.bg}
-              ${
-                selectedFilter === box.key
-                  ? "ring-4 ring-blue-400 ring-opacity-50"
-                  : "hover:ring-2 hover:ring-blue-300"
-              }
-              transition
-            `}
+            key={box.label}
+            onClick={() => dispatch(setSelectedFilter(box.label))
+              
+            }
+            className={`p-4 rounded-xl shadow flex items-center gap-4 shadow-2xl ${box.bg} ${
+              selectedFilter === box.label
+                ? "ring-2 ring-blue-400 ring-opacity-50"
+                : "hover:ring-2 hover:ring-blue-300"
+            } transition`}
           >
             <div className="text-3xl">{box.icon}</div>
             <div className="text-left">
@@ -108,101 +161,194 @@ const DashStats = () => {
         ))}
       </div>
 
-      {/* Task list */}
+      {/* Tasks Table */}
       <div className="mb-6">
-        <h2 className="text-xl mb-2">
-          Showing: {selectedFilter === "total" ? "All Tasks" : selectedFilter}
+        <h2 className="text-xl mb-8 font-semibold">
+           {selectedFilter === "total" ? "All Tasks" : selectedFilter}
         </h2>
-        <ul className="list-disc list-inside min-h-[100px] space-y-2">
-          {filteredTasks.length > 0 ? (
-            filteredTasks.map((task) => (
-              <li key={task.id} className="flex items-center justify-between">
-                {editId === task.id ? (
-                  <div className="flex gap-2 items-center flex-1">
-                    <input
-                      type="text"
-                      className="border p-1 rounded flex-grow"
-                      value={editTitle}
-                      onChange={(e) => setEditTitle(e.target.value)}
-                    />
-                    <select
-                      className="border p-1 rounded"
-                      value={editStatus}
-                      onChange={(e) => setEditStatus(e.target.value)}
-                    >
-                      <option value="todo">To Do</option>
-                      <option value="inProgress">In Progress</option>
-                      <option value="completed">Completed</option>
-                    </select>
-                    <button
-                      onClick={saveEdit}
-                      className="bg-green-600 text-white px-2 py-1 rounded"
-                    >
-                      Save
-                    </button>
-                    <button
-                      onClick={cancelEdit}
-                      className="bg-gray-400 text-white px-2 py-1 rounded"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                ) : (
-                  <>
-                    <span>
-                      {task.title} — <em>{task.status}</em>
-                    </span>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => startEdit(task)}
-                        className="text-blue-600 hover:underline"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDeleteTask(task.id)}
-                        className="text-red-600 hover:underline"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </>
-                )}
-              </li>
-            ))
-          ) : (
-            <li>No tasks found.</li>
-          )}
-        </ul>
+
+        <div className="overflow-x-auto rounded border shadow-2xl">
+          <table className="min-w-full border border-gray-300 rounded">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="p-3 border-b text-left">Task Title</th>
+                <th className="p-3 border-b text-left">Status</th>
+                <th className="p-3 border-b text-left">Team</th>
+                <th className="p-3 border-b text-left">Create At</th>
+                <th className="p-3 border-b text-left">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredTasks.length > 0 ? (
+                filteredTasks.map((task) => (
+                  <tr key={task.id} className="hover:bg-gray-50">
+                    {editId === task.id ? (
+                      <>
+                        <td className="p-3 border-b">
+                          <input
+                            type="text"
+                            className="border p-1 rounded w-full"
+                            value={editTitle}
+                            onChange={(e) => setEditTitle(e.target.value)}
+                          />
+                        </td>
+                        <td className="p-3 border-b">
+                          <select
+                            className="border p-1 rounded w-full"
+                            value={editStatus}
+                            onChange={(e) => setEditStatus(e.target.value)}
+                          >
+                            <option value="todo">To Do</option>
+                            <option value="inProgress">In Progress</option>
+                            <option value="completed">Completed</option>
+                          </select>
+                        </td>
+                        <td className="p-3 border-b">
+                          <input
+                            type="text"
+                            className="border p-1 rounded w-full"
+                            value={editTeam}
+                            onChange={(e) => setEditTeam(e.target.value)}
+                          />
+                        </td>
+                        <td className="p-3 border-b">
+                          {task.createdAt
+                            ? new Date(task.createdAt).toLocaleString()
+                            : "—"}
+                        </td>
+                        <td className="p-3 border-b space-x-2">
+                          <button
+                            onClick={saveEdit}
+                            className="bg-green-600 text-white px-2 py-1 rounded"
+                          >
+                            Save
+                          </button>
+                          <button
+                            onClick={cancelEdit}
+                            className="bg-gray-400 text-white px-2 py-1 rounded"
+                          >
+                            Cancel
+                          </button>
+                        </td>
+                      </>
+                    ) : (
+                      <>
+                        <td className="p-3 border-b">{task.title}</td>
+                        <td className="p-3 border-b capitalize">
+                          {task.status}
+                        </td>
+                        <td className="p-3 border-b">{task.team || "—"}</td>
+                        <td className="p-3 border-b">
+                          {task.createdAt
+                            ? new Date(task.createdAt).toLocaleDateString()
+                            : "—"}
+                        </td>
+                        <td className="p-3 border-b space-x-2">
+                          <button
+                            onClick={() => startEdit(task)}
+                            className="text-blue-600 hover:underline"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteTask(task.id)}
+                            className="text-red-600 hover:underline"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </>
+                    )}
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5" className="p-3 text-center text-gray-500">
+                    No tasks found.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
+      {/* Modal */}
+      {showModal && (
+        <div
+          className="fixed inset-0 bg-opacity-40 flex items-center justify-center z-50"
+          onClick={() => setShowModal(false)}
+        >
+          <div
+            className="bg-white rounded-xl p-6 w-full max-w-md shadow-xl transform transition-all duration-300 animate-fadeIn"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-semibold mb-4">Add New Task</h3>
+            <input
+              type="text"
+              className="border p-2 rounded w-full mb-3"
+              placeholder="Task title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+            <input
+              type="text"
+              className="border p-2 rounded w-full mb-3"
+              placeholder="Team name"
+              value={team}
+              onChange={(e) => setTeam(e.target.value)}
+            />
+            <select
+              className="border p-2 rounded w-full mb-3"
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+            >
+              <option value="todo">To Do</option>
+              <option value="inProgress">In Progress</option>
+              <option value="completed">Completed</option>
+            </select>
 
-      {/* Add Task form */}
-      <div className="border p-4 rounded-lg shadow-md max-w-md">
-        <h3 className="text-lg font-semibold mb-3">Add New Task</h3>
-        <input
-          type="text"
-          className="border p-2 rounded w-full mb-3"
-          placeholder="Task title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-        <select
-          className="border p-2 rounded w-full mb-3"
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-        >
-          <option value="todo">To Do</option>
-          <option value="inProgress">In Progress</option>
-          <option value="completed">Completed</option>
-        </select>
-        <button
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          onClick={handleAddTask}
-        >
-          Add Task
-        </button>
-      </div>
+            {/* Calendar */}
+            <div className="mb-3">
+              <label className="block text-sm font-medium mb-1">Due Date</label>
+              <DatePicker
+                selected={dueDate}
+                onChange={(date) => setDueDate(date)}
+                className="border p-2 rounded w-full"
+                placeholderText="Select a date"
+                dateFormat="MMMM d, yyyy"
+                isClearable
+              />
+            </div>
+
+            {/* Notes */}
+            <textarea
+              className="border p-2 rounded w-full mb-4 h-24 resize-none"
+              placeholder="Task notes..."
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+            />
+
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={() => setShowModal(false)}
+                className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  handleAddTask();
+                  setShowModal(false);
+                }}
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              >
+                Add Task
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
