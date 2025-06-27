@@ -24,14 +24,16 @@ const taskSlice = createSlice({
         state.tasks.push(action.payload);
         state.stats = updateStats(state.tasks);
       },
-      prepare({ title, status, team }) {
+      prepare({ title, status, team, dueDate, createdAt, notes }) {
         return {
           payload: {
             id: nanoid(),
             title,
             status,
             team: team || "Unassigned",
-            createdAt: new Date().toISOString(),
+            dueDate: dueDate || null,
+            createdAt: createdAt || new Date().toISOString(),
+            notes: notes || "",
           },
         };
       },
@@ -43,12 +45,14 @@ const taskSlice = createSlice({
     },
 
     editTask(state, action) {
-      const { id, title, status, team } = action.payload; // FIX: include `team`
+      const { id, title, status, team, dueDate, notes } = action.payload;
       const task = state.tasks.find((t) => t.id === id);
       if (task) {
         task.title = title;
         task.status = status;
-        task.team = team; // FIX: apply updated team
+        task.team = team;
+        task.dueDate = dueDate || null;
+        task.notes = notes || "";
         state.stats = updateStats(state.tasks);
       }
     },
@@ -60,5 +64,4 @@ const taskSlice = createSlice({
 });
 
 export const { addTask, deleteTask, editTask, setSelectedFilter } = taskSlice.actions;
-
 export default taskSlice.reducer;

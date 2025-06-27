@@ -1,3 +1,4 @@
+// src/components/DashStats.jsx
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -14,7 +15,8 @@ import {
   Save,
   XCircle,
   Edit2,
-  Trash2
+  Trash2,
+  CalendarDays,
 } from "lucide-react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -28,6 +30,7 @@ const DashStats = () => {
   const [team, setTeam] = useState("");
   const [status, setStatus] = useState("todo");
   const [dueDate, setDueDate] = useState(null);
+  const [createdAt, setCreatedAt] = useState(new Date()); // NEW
   const [notes, setNotes] = useState("");
 
   const [editId, setEditId] = useState(null);
@@ -38,7 +41,6 @@ const DashStats = () => {
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
 
-  // Use keys consistently
   const boxes = [
     {
       key: "allTasks",
@@ -70,7 +72,6 @@ const DashStats = () => {
     },
   ];
 
-  // Fix filtering: use keys not labels, and 'allTasks' for all
   const filteredTasks =
     selectedFilter === "allTasks"
       ? tasks
@@ -83,7 +84,7 @@ const DashStats = () => {
         title,
         status,
         team,
-        createdAt: new Date().toISOString(),
+        createdAt: createdAt ? createdAt.toISOString() : new Date().toISOString(),
         dueDate: dueDate ? dueDate.toISOString() : null,
         notes,
       })
@@ -92,6 +93,7 @@ const DashStats = () => {
     setStatus("todo");
     setTeam("");
     setDueDate(null);
+    setCreatedAt(new Date());
     setNotes("");
   };
 
@@ -114,19 +116,17 @@ const DashStats = () => {
   };
 
   const saveEdit = () => {
-    if (!editTitle.trim()) return;
     dispatch(
       editTask({
         id: editId,
         title: editTitle,
         status: editStatus,
-        team: editTeam || "Unassigned",
+        team: editTeam,
       })
     );
     cancelEdit();
   };
 
-  // Map keys to labels for display
   const filterLabels = boxes.reduce((acc, box) => {
     acc[box.key] = box.label;
     return acc;
@@ -178,7 +178,7 @@ const DashStats = () => {
                 <th className="p-3 border-b text-center">Task Title</th>
                 <th className="p-3 border-b text-center">Status</th>
                 <th className="p-3 border-b text-center">Team</th>
-                <th className="p-3 border-b text-center">Create At</th>
+                <th className="p-3 border-b text-center">Created At</th>
                 <th className="p-3 border-b text-center w-32">Actions</th>
               </tr>
             </thead>
@@ -236,7 +236,6 @@ const DashStats = () => {
                             </button>
                           </div>
                         </td>
-
                       </>
                     ) : (
                       <>
@@ -264,7 +263,6 @@ const DashStats = () => {
                             </button>
                           </div>
                         </td>
-
                       </>
                     )}
                   </tr>
@@ -288,7 +286,7 @@ const DashStats = () => {
           onClick={() => setShowModal(false)}
         >
           <div
-            className="bg-white rounded-xl p-6 w-full max-w-md shadow-xl transform transition-all duration-300 animate-fadeIn"
+            className="bg-white rounded-xl p-6 w-full max-w-md shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="text-lg font-semibold mb-4">Add New Task</h3>
@@ -299,35 +297,71 @@ const DashStats = () => {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
-            <input
-              type="text"
-              className="border p-2 rounded w-full mb-3"
-              placeholder="Team name"
-              value={team}
-              onChange={(e) => setTeam(e.target.value)}
-            />
-            <select
-              className="border p-2 rounded w-full mb-3"
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-            >
-              <option value="todo">To Do</option>
-              <option value="inProgress">In Progress</option>
-              <option value="completed">Completed</option>
-            </select>
+            {/* Team & Status Row */}
+            <div className="flex flex-col sm:flex-row gap-4 mb-3">
+              {/* Team Name */}
+              <div className="w-full sm:w-1/2">
+                <label className="block text-sm font-medium mb-1">Team</label>
+                <input
+                  type="text"
+                  className="border p-2 rounded w-full"
+                  placeholder="Team name"
+                  value={team}
+                  onChange={(e) => setTeam(e.target.value)}
+                />
+              </div>
 
-            {/* Calendar */}
-            <div className="mb-3">
-              <label className="block text-sm font-medium mb-1">Due Date</label>
-              <DatePicker
-                selected={dueDate}
-                onChange={(date) => setDueDate(date)}
-                className="border p-2 rounded w-full"
-                placeholderText="Select a date"
-                dateFormat="dd/MM/yyyy"
-                isClearable
-              />
+              {/* Status */}
+              <div className="w-full sm:w-1/2">
+                <label className="block text-sm font-medium mb-1">Status</label>
+                <select
+                  className="border p-2 rounded w-full"
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value)}
+                >
+                  <option value="todo">To Do</option>
+                  <option value="inProgress">In Progress</option>
+                  <option value="completed">Completed</option>
+                </select>
+              </div>
             </div>
+
+
+            {/* Date Pickers Row: Created Date (left) & Due Date (right) */}
+            <div className="flex flex-col sm:flex-row gap-4 mb-3">
+              {/* Created Date */}
+              <div className="w-full sm:w-1/2">
+                <label className="block text-sm font-medium mb-1 flex items-center gap-1">
+                  <CalendarDays className="w-4 h-4 text-gray-500" />
+                  Created Date
+                </label>
+                <DatePicker
+                  selected={createdAt}
+                  onChange={(date) => setCreatedAt(date)}
+                  className="border p-2 rounded w-full"
+                  placeholderText="Select created date"
+                  dateFormat="dd/MM/yyyy"
+                  isClearable
+                />
+              </div>
+
+              {/* Due Date */}
+              <div className="w-full sm:w-1/2">
+                <label className="block text-sm font-medium mb-1 flex items-center gap-1">
+                  <CalendarDays className="w-4 h-4 text-gray-500" />
+                  Due Date
+                </label>
+                <DatePicker
+                  selected={dueDate}
+                  onChange={(date) => setDueDate(date)}
+                  className="border p-2 rounded w-full"
+                  placeholderText="Select due date"
+                  dateFormat="dd/MM/yyyy"
+                  isClearable
+                />
+              </div>
+            </div>
+
 
             {/* Notes */}
             <textarea

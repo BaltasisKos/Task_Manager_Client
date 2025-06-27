@@ -16,7 +16,7 @@ function App() {
             <Route path="/" element={<Login />} />   
             
             <Route path="/dashboard" element={<Dashboard />}/>
-            {/* <Route path="tasks" element={<Tasks/>}/> */}
+            <Route path="tasks" element={<Tasks/>}/>
             <Route path="completed" element={<Completed/>}/>
             <Route path="todo" element={<ToDo/>}/>
             <Route path="inProgress" element={<InProgress/>}/>

@@ -5,7 +5,7 @@ import { RiProgress5Line } from "react-icons/ri";
 import { PiMastodonLogoFill } from "react-icons/pi";
 import { RiTeamLine } from "react-icons/ri";
 import { BsFillTrash3Fill } from "react-icons/bs";
-import {HiOutlineCog, HiOutlineQuestionMarkCircle} from "react-icons/hi"
+import {HiOutlineCog} from "react-icons/hi"
 
 
 export const DASHBOARD_SIDEBAR_LINKS = [

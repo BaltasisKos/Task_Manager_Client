@@ -1,17 +1,24 @@
-import React from 'react'
-import Sidebar from '../components/Sidebar'
-import Header from '../components/Header'
+import React from 'react';
+import Sidebar from '../components/Sidebar';
+import Header from '../components/Header';
+import TodoTasksTable from '../components/TodoTasksTable';
 
 const ToDo = () => {
   return (
-    <div className='flex flex-row bg-neutral-100 h-screen w-screen overflow-hidden'>
-          <Sidebar/>
-          <div className='flex-1 h-screen w-screen'>
-          <Header/>
-          </div>
-          riuvbeirfbv
-        </div>
-  )
-}
+    <div className="flex h-screen w-screen bg-neutral-100 overflow-hidden">
+      <Sidebar />
+      
+      {/* Main content area */}
+      <div className="flex-1 flex flex-col h-full overflow-hidden">
+        <Header />
 
-export default ToDo
+        {/* Content below the header */}
+        <div className="flex-1 flex  overflow-auto p-6">
+          <TodoTasksTable />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ToDo;
