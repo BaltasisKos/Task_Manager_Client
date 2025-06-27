@@ -36,20 +36,23 @@ const taskSlice = createSlice({
         };
       },
     },
+
     deleteTask(state, action) {
       state.tasks = state.tasks.filter((task) => task.id !== action.payload);
       state.stats = updateStats(state.tasks);
     },
+
     editTask(state, action) {
-      const { id, title, status } = action.payload;
+      const { id, title, status, team } = action.payload; // FIX: include `team`
       const task = state.tasks.find((t) => t.id === id);
       if (task) {
         task.title = title;
         task.status = status;
-        task.team = team;
+        task.team = team; // FIX: apply updated team
         state.stats = updateStats(state.tasks);
       }
     },
+
     setSelectedFilter(state, action) {
       state.selectedFilter = action.payload;
     },

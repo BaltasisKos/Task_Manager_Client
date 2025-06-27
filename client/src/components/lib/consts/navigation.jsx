@@ -15,12 +15,12 @@ export const DASHBOARD_SIDEBAR_LINKS = [
 		path: '/dashboard',
 		icon: <MdSpaceDashboard />
 	},
-	// {
-	// 	key: 'tasks',
-	// 	label: 'Tasks',
-	// 	path: '/tasks',
-	// 	icon: <LiaTasksSolid />
-	// },
+	{
+		key: 'tasks',
+		label: 'Tasks',
+		path: '/tasks',
+		icon: <LiaTasksSolid />
+	},
 	{
 		key: 'completed',
 		label: 'Completed',

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   addTask,
@@ -11,6 +11,10 @@ import {
   Clock,
   ClipboardList,
   ListTodo,
+  Save,
+  XCircle,
+  Edit2,
+  Trash2
 } from "lucide-react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -23,8 +27,8 @@ const DashStats = () => {
   const [title, setTitle] = useState("");
   const [team, setTeam] = useState("");
   const [status, setStatus] = useState("todo");
-  const [dueDate, setDueDate] = useState(null); // New
-  const [notes, setNotes] = useState(""); // New
+  const [dueDate, setDueDate] = useState(null);
+  const [notes, setNotes] = useState("");
 
   const [editId, setEditId] = useState(null);
   const [editTitle, setEditTitle] = useState("");
@@ -32,9 +36,9 @@ const DashStats = () => {
   const [editStatus, setEditStatus] = useState("todo");
 
   const [showModal, setShowModal] = useState(false);
-  
   const navigate = useNavigate();
 
+  // Use keys consistently
   const boxes = [
     {
       key: "allTasks",
@@ -66,8 +70,9 @@ const DashStats = () => {
     },
   ];
 
+  // Fix filtering: use keys not labels, and 'allTasks' for all
   const filteredTasks =
-    selectedFilter === "total"
+    selectedFilter === "allTasks"
       ? tasks
       : tasks.filter((t) => t.status === selectedFilter);
 
@@ -121,10 +126,11 @@ const DashStats = () => {
     cancelEdit();
   };
 
-  const getPathForKey = (key) => {
-  const link = DASHBOARD_SIDEBAR_LINKS.find((link) => link.key === key);
-  return link ? link.path : "/dashboard"; // fallback
-};
+  // Map keys to labels for display
+  const filterLabels = boxes.reduce((acc, box) => {
+    acc[box.key] = box.label;
+    return acc;
+  }, {});
 
   return (
     <div className="relative">
@@ -142,12 +148,10 @@ const DashStats = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {boxes.map((box) => (
           <button
-            key={box.label}
-            onClick={() => dispatch(setSelectedFilter(box.label))
-              
-            }
+            key={box.key}
+            onClick={() => dispatch(setSelectedFilter(box.key))}
             className={`p-4 rounded-xl shadow flex items-center gap-4 shadow-2xl ${box.bg} ${
-              selectedFilter === box.label
+              selectedFilter === box.key
                 ? "ring-2 ring-blue-400 ring-opacity-50"
                 : "hover:ring-2 hover:ring-blue-300"
             } transition`}
@@ -164,18 +168,18 @@ const DashStats = () => {
       {/* Tasks Table */}
       <div className="mb-6">
         <h2 className="text-xl mb-8 font-semibold">
-           {selectedFilter === "total" ? "All Tasks" : selectedFilter}
+          {filterLabels[selectedFilter] || "All Tasks"}
         </h2>
 
         <div className="overflow-x-auto rounded border shadow-2xl">
           <table className="min-w-full border border-gray-300 rounded">
-            <thead className="bg-gray-100">
+            <thead className="bg-blue-100">
               <tr>
-                <th className="p-3 border-b text-left">Task Title</th>
-                <th className="p-3 border-b text-left">Status</th>
-                <th className="p-3 border-b text-left">Team</th>
-                <th className="p-3 border-b text-left">Create At</th>
-                <th className="p-3 border-b text-left">Actions</th>
+                <th className="p-3 border-b text-center">Task Title</th>
+                <th className="p-3 border-b text-center">Status</th>
+                <th className="p-3 border-b text-center">Team</th>
+                <th className="p-3 border-b text-center">Create At</th>
+                <th className="p-3 border-b text-center w-32">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -216,47 +220,51 @@ const DashStats = () => {
                             ? new Date(task.createdAt).toLocaleString()
                             : "—"}
                         </td>
-                        <td className="p-3 border-b space-x-2">
-                          <button
-                            onClick={saveEdit}
-                            className="bg-green-600 text-white px-2 py-1 rounded"
-                          >
-                            Save
-                          </button>
-                          <button
-                            onClick={cancelEdit}
-                            className="bg-gray-400 text-white px-2 py-1 rounded"
-                          >
-                            Cancel
-                          </button>
+                        <td className="p-3 border-b">
+                          <div className="flex justify-center gap-2">
+                            <button
+                              onClick={saveEdit}
+                              className="flex items-center gap-2 bg-green-600 text-white px-2 py-1 rounded cursor-pointer"
+                            >
+                              <Save size={16} /> Save
+                            </button>
+                            <button
+                              onClick={cancelEdit}
+                              className="flex items-center gap-2 bg-gray-400 text-white px-2 py-1 rounded cursor-pointer"
+                            >
+                              <XCircle size={16} /> Cancel
+                            </button>
+                          </div>
                         </td>
+
                       </>
                     ) : (
                       <>
                         <td className="p-3 border-b">{task.title}</td>
-                        <td className="p-3 border-b capitalize">
-                          {task.status}
-                        </td>
+                        <td className="p-3 border-b capitalize">{task.status}</td>
                         <td className="p-3 border-b">{task.team || "—"}</td>
                         <td className="p-3 border-b">
                           {task.createdAt
                             ? new Date(task.createdAt).toLocaleDateString()
                             : "—"}
                         </td>
-                        <td className="p-3 border-b space-x-2">
-                          <button
-                            onClick={() => startEdit(task)}
-                            className="text-blue-600 hover:underline"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDeleteTask(task.id)}
-                            className="text-red-600 hover:underline"
-                          >
-                            Delete
-                          </button>
+                        <td className="p-3 border-b">
+                          <div className="flex justify-center gap-2">
+                            <button
+                              onClick={() => startEdit(task)}
+                              className="flex items-center gap-2 bg-blue-600 text-white px-2 py-1 rounded cursor-pointer"
+                            >
+                              <Edit2 size={16} /> Edit
+                            </button>
+                            <button
+                              onClick={() => handleDeleteTask(task.id)}
+                              className="flex items-center gap-2 bg-red-600 text-white px-2 py-1 rounded cursor-pointer"
+                            >
+                              <Trash2 size={16} /> Delete
+                            </button>
+                          </div>
                         </td>
+
                       </>
                     )}
                   </tr>
@@ -316,7 +324,7 @@ const DashStats = () => {
                 onChange={(date) => setDueDate(date)}
                 className="border p-2 rounded w-full"
                 placeholderText="Select a date"
-                dateFormat="MMMM d, yyyy"
+                dateFormat="dd/MM/yyyy"
                 isClearable
               />
             </div>
