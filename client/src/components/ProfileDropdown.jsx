@@ -1,18 +1,22 @@
 import React from "react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import avatar from "../assets/profilePic.png"; 
+import avatar from "../assets/user.png";
 import { useNavigate } from "react-router-dom";
 
+// 👇 Replace this with real user data from auth context or Redux
+const dummyUser = {
+  name: "John Doe",
+  email: "john.doe@example.com",
+  role: "admin", // or "user"
+};
 
 const ProfileDropdown = () => {
-
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // Optional: clear auth tokens or user state here
+    // Clear auth tokens, etc.
     navigate("/");
   };
-
 
   return (
     <div className="relative z-50">
@@ -22,7 +26,7 @@ const ProfileDropdown = () => {
             <img
               src={avatar}
               alt="Profile"
-              className="w-10 h-10 rounded-full border cursor-pointer"
+              className="w-10 h-10 cursor-pointer"
             />
           </button>
         </DropdownMenu.Trigger>
@@ -31,18 +35,38 @@ const ProfileDropdown = () => {
           <DropdownMenu.Content
             sideOffset={8}
             align="end"
-            className="bg-white rounded-md shadow-lg p-2 w-40 z-50"
+            className="bg-white rounded-md shadow-lg p-2 w-52 z-50"
           >
-            <DropdownMenu.Item className="px-3 py-2 hover:bg-gray-100 rounded cursor-pointer">
+            {/* 👤 User Info */}
+            <div className="px-3 py-2 text-sm text-gray-700 border-b">
+            <div className="font-medium flex items-center justify-between">
+              {dummyUser.name}
+              <span
+                className={`ml-2 text-xs font-semibold px-2 py-0.5 rounded-full ${
+                  dummyUser.role === "admin"
+                    ? "bg-red-100 text-red-600"
+                    : "bg-green-100 text-green-600"
+                }`}
+              >
+                {dummyUser.role === "admin" ? "Admin" : "User"}
+              </span>
+            </div>
+            <div className="text-xs text-gray-500">{dummyUser.email}</div>
+            </div>
+
+
+            {/* Menu Items */}
+            <DropdownMenu.Item className="px-3 py-2 hover:bg-blue-500 hover:text-white rounded cursor-pointer mt-1">
               Profile
             </DropdownMenu.Item>
-            <DropdownMenu.Item className="px-3 py-2 hover:bg-gray-100 rounded cursor-pointer">
+            <DropdownMenu.Item className="px-3 py-2 hover:bg-blue-500 hover:text-white rounded cursor-pointer mt-1">
               Settings
             </DropdownMenu.Item>
             <DropdownMenu.Separator className="my-1 h-px bg-gray-200" />
-            <DropdownMenu.Item 
+            <DropdownMenu.Item
               onSelect={handleLogout}
-              className="px-3 py-2 text-red-600 hover:bg-red-100 rounded cursor-pointer">
+              className="px-3 py-2 text-red-600 hover:bg-red-500 hover:text-white rounded cursor-pointer"
+            >
               Logout
             </DropdownMenu.Item>
           </DropdownMenu.Content>

@@ -1,14 +1,13 @@
 import React from 'react'
-import { HiOutlineSearch, HiOutlineChatAlt, HiOutlineBell } from 'react-icons/hi'
 import BellIconPop from './BellIconPop';
 import ProfileDropdown from './ProfileDropdown';
+import SearchInput from './SearchInput';
 
 const Header = () => {
   return (
     <div className='bg-white h-16 w-auto px-4 flex justify-between items-center border-b border-gray-200'>
       <div className='relative'>
-        <HiOutlineSearch fontSize={20} className='text-gray-400 absolute top-1/2 -translate-y-1/2 left-3'/>
-        <input type="text" placeholder='Search...' className='text-sm focus:outline-none active:outline-none h-10 w-120 border border-gray-300 rounded-lg pl-11 pr-4'/>
+        <SearchInput/>
       </div>
       <div className='flex items-center gap-4 mr-3'>
          <BellIconPop/>  

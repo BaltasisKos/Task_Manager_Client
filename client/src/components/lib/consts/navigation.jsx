@@ -6,6 +6,7 @@ import { PiMastodonLogoFill } from "react-icons/pi";
 import { RiTeamLine } from "react-icons/ri";
 import { BsFillTrash3Fill } from "react-icons/bs";
 import {HiOutlineCog} from "react-icons/hi"
+import { FaBoxArchive } from "react-icons/fa6";
 
 
 export const DASHBOARD_SIDEBAR_LINKS = [
@@ -46,10 +47,10 @@ export const DASHBOARD_SIDEBAR_LINKS = [
 		icon: <RiTeamLine/>
 	},
   {
-		key: 'trash',
-		label: 'Trash',
-		path: '/trash',
-		icon: <BsFillTrash3Fill />
+		key: 'archive',
+		label: 'Archive',
+		path: '/archive',
+		icon: <FaBoxArchive />
 	}
 ]
 

@@ -179,7 +179,7 @@ const DashStats = () => {
                 <th className="p-3 border-b text-center">Status</th>
                 <th className="p-3 border-b text-center">Team</th>
                 <th className="p-3 border-b text-center">Created At</th>
-                <th className="p-3 border-b text-center w-32">Actions</th>
+                <th className="p-3 border-b text-center">Actions</th>
               </tr>
             </thead>
             <tbody>

@@ -7,43 +7,47 @@ const CompletedTasksTable = () => {
   const completedTasks = tasks.filter((task) => task.status === 'completed');
 
   return (
-    <div className="p-6">
-  <div className="flex justify-center mb-4">
-    <h2 className="text-2xl font-semibold text-gray-700">
-      Completed Tasks
-    </h2>
-  </div>
+    <div className="w-full py-10 px-4">
+      <div className="flex justify-center mb-4">
+        <h2 className="text-xl mb-8 font-semibold text-gray-700">
+          Completed Tasks
+        </h2>
+      </div>
 
-  {completedTasks.length > 0 ? (
-    <table className="min-w-full bg-white rounded-lg shadow-md overflow-hidden">
-      <thead className="bg-gray-100 text-left text-gray-600 text-sm uppercase">
-        <tr>
-          <th className="px-6 py-3">Task</th>
-          <th className="px-6 py-3">Due Date</th>
-          <th className="px-6 py-3">Assignee</th>
+      <div className="overflow-x-auto shadow-2xl">
+          <table className="min-w-full border border-gray-300 rounded">
+            <thead>
+              <tr>
+                <th className="p-3 border-b text-center">Task Title</th>
+                <th className="p-3 border-b text-center">Status</th>
+                <th className="p-3 border-b text-center">Team</th>
+                <th className="p-3 border-b text-center">Created At</th>
+                <th className="p-3 border-b text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+    {completedTasks.length === 0 ? (
+      <tr>
+        <td colSpan={5} className="p-4 text-center text-gray-500">
+          No completed tasks found.
+        </td>
+      </tr>
+    ) : (
+      completedTasks.map((task) => (
+        <tr key={task.id} className="border-b">
+          <td className="p-2">{task.title}</td>
+          <td className="p-2">{task.team || '—'}</td>
+          <td className="p-2">
+            {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : '—'}
+          </td>
+          <td className="p-2 whitespace-pre-wrap break-words">{task.notes || '—'}</td>
         </tr>
-      </thead>
-      <tbody>
-        {completedTasks.map((task) => (
-          <tr
-            key={task.id}
-            className="border-b hover:bg-gray-50 text-gray-800"
-          >
-            <td className="px-6 py-4">{task.title}</td>
-            <td className="px-6 py-4">
-              {task.dueDate
-                ? new Date(task.dueDate).toLocaleDateString()
-                : "—"}
-            </td>
-            <td className="px-6 py-4">{task.team || "Unassigned"}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  ) : (
-    <p className="text-gray-500">No completed tasks found.</p>
-  )}
-</div>
+      ))
+    )}
+  </tbody>
+          </table>
+        </div>
+        </div>
 
   );
 };

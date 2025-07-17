@@ -2,7 +2,7 @@ import React from 'react'
 import Sidebar from '../components/Sidebar'
 import Header from '../components/Header'
 
-const Trash = () => {
+const Archive = () => {
   return (
     <div className='flex flex-row bg-neutral-100 h-screen w-screen overflow-hidden'>
           <Sidebar/>
@@ -14,4 +14,4 @@ const Trash = () => {
   )
 }
 
-export default Trash
+export default Archive

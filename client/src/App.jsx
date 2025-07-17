@@ -4,7 +4,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './pages/Login';
 import ParticlesComponent from './components/Particles';
 import Dashboard from './pages/Dashboard';
-import {Completed, Trash, InProgress, Tasks, Team, ToDo} from './pages';
+import {Completed, Archive, InProgress, Tasks, Team, ToDo} from './pages';
+
 
 function App() {
   return (
@@ -21,7 +22,7 @@ function App() {
             <Route path="todo" element={<ToDo/>}/>
             <Route path="inProgress" element={<InProgress/>}/>
             <Route path="team" element={<Team/>}/>
-            <Route path="trash" element={<Trash/>}/>
+            <Route path="archive" element={<Archive/>}/>
           </Routes>
 
 

@@ -39,5 +39,19 @@ html, body, #root, .App {
   align-items: center;
 }
 
+/* styles.css */
+
+/* .sidebar {
+  background-color: #333333;
+  color: #fff;
+} */
+
+.sidebar .menu-item {
+  font-size: 18px;
+}
+
+.sidebar .menu-item .icon {
+  color: #f0f0f0;
+}
 
 

@@ -1,12 +1,58 @@
-# React + Vite
+# Task Manager
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Task Manager is a final exam project for Coding Factory 7 of Athens Univercity of Economic Bussines.
+A modern React application designed to manage personal or team tasks in an intuitive and efficient way. 
+It provides a user-friendly interface to create, update, and organize tasks, with real-time syncing via an API backend.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## Expanding the ESLint configuration
+- Create, update, and delete tasks  
+- Organize tasks by status or priority  
+- Responsive, mobile-friendly interface  
+- API integration for real-time task syncing  
+- Optimized for speed and developer productivity with Vite  
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## Technology Stack
+
+- React  
+- React Router  
+- Axios  
+- Tailwind CSS  
+- Vite  
+- JavaScript / TypeScript
+
+---
+
+## Install Dependencies
+
+Run the following command to install project dependencies:
+
+```bash
+npm install
+
+
+---
+
+
+## Development server
+
+To start a local development server, run:
+
+
+- npm run dev
+
+---
+
+
+Once the server is running, open your browser and navigate 
+to `http://localhost:3000/`. The application will automatically reload whenever you modify any of the source files.
+
+
+
+
+
+
