@@ -20,10 +20,10 @@ function Login() {
         {/* Left: Marketing Content */}
         <div className="h-full w-full lg:w-3/5 flex flex-col items-center justify-center px-50">
           <div className="w-full md:max-w-lg 2xl:max-w-3xl flex flex-col items-center justify-center gap-5 md:gap-y-10 2xl:-mt-20">
-            <p className="py-3 flex flex-col gap-0 md:gap-4 text-6xl  font-bold bg-gradient-to-r from-blue-700 via-cyan-600 to-cyan-300 bg-clip-text text-transparent">
+            <p className="py-3 flex flex-col gap-0 md:gap-4 text-6xl  font-bold bg-gradient-to-r from-blue-600 via-cyan-600 to-cyan-400 bg-clip-text text-transparent cursor-default">
               <span>Task Manager</span>
             </p>
-            <span className="flex gap-1 py-1 px-3 border rounded-full text-sm md:text-base border-blue text-blue-700">
+            <span className="flex gap-1 py-1 px-3 border rounded-full text-sm md:text-base border-blue text-blue-500 cursor-default">
               Manage all your tasks in one place!
             </span>
           </div>
@@ -32,7 +32,7 @@ function Login() {
         {/* Right: Login/Signup Form */}
         <div className="w-[430px] bg-white p-8 rounded-2xl shadow-lg">
           <div className="flex justify-center mb-4">
-            <h2 className="text-3xl font-semibold text-center mb-10">
+            <h2 className="text-3xl font-semibold text-center mb-10 cursor-default">
               {isLoginMode ? "Welcome Back!" : "Sign Up"}
             </h2>
           </div>
@@ -40,7 +40,7 @@ function Login() {
           {/* Toggle Buttons */}
           <div className="relative flex h-12 mb-6 border border-gray-300 rounded-full overflow-hidden">
             <button
-              className={`w-1/2 text-lg font-medium transition-all z-10 ${
+              className={`w-1/2 text-lg font-medium transition-all z-10 cursor-pointer ${
                 isLoginMode ? "text-white" : "text-black"
               }`}
               onClick={() => setIsLoginMode(true)}
@@ -48,7 +48,7 @@ function Login() {
               Login
             </button>
             <button
-              className={`w-1/2 text-lg font-medium transition-all z-10 ${
+              className={`w-1/2 text-lg font-medium transition-all z-10 cursor-pointer ${
                 !isLoginMode ? "text-white" : "text-black"
               }`}
               onClick={() => setIsLoginMode(false)}
@@ -56,14 +56,14 @@ function Login() {
               Signup
             </button>
             <div
-              className={`absolute top-0 h-full w-1/2 rounded-full bg-gradient-to-r from-blue-700 via-cyan-600 to-cyan-200 transition-all ${
+              className={`absolute top-0 h-full w-1/2 rounded-full bg-gradient-to-r from-blue-600 via-cyan-600 to-cyan-300 transition-all ${
                 isLoginMode ? "left-0" : "left-1/2"
               }`}
             ></div>
           </div>
 
           {/* Form */}
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleLogin} className="space-y-4 ">
             {!isLoginMode && (
               <input
                 type="text"
@@ -117,12 +117,12 @@ function Login() {
 
             <button
               type="submit"
-              className="w-full p-3 bg-gradient-to-r from-blue-700 via-cyan-600 to-cyan-200 text-white rounded-full text-lg font-medium hover:opacity-90 transition"
+              className="w-full p-3 bg-gradient-to-r from-blue-700 via-cyan-600 to-cyan-200 text-white rounded-full text-lg font-medium hover:opacity-90 transition cursor-pointer"
             >
               {isLoginMode ? "Login" : "Signup"}
             </button>
 
-            <p className="text-center text-gray-600">
+            <p className="text-center text-gray-600 cursor-default">
               {isLoginMode
                 ? "Don't have an account?"
                 : "Already have an account?"}{" "}
