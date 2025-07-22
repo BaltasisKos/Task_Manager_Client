@@ -47,7 +47,7 @@ const CompletedTasksTable = () => {
   </tbody>
           </table>
         </div>
-        </div>
+      </div>
 
   );
 };

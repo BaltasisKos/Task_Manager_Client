@@ -22,7 +22,7 @@ const taskSlice = createSlice({
     addTask: {
       reducer(state, action) {
         state.tasks.push(action.payload);
-        state.stats = updateStats(state.tasks);
+        state.stats = updateStats(state.tasks.filter((t) => !t.deleted));
       },
       prepare({ title, status, team, dueDate, createdAt, notes }) {
         return {
@@ -34,14 +34,31 @@ const taskSlice = createSlice({
             dueDate: dueDate || null,
             createdAt: createdAt || new Date().toISOString(),
             notes: notes || "",
+            deleted: false,
           },
         };
       },
     },
 
-    deleteTask(state, action) {
-      state.tasks = state.tasks.filter((task) => task.id !== action.payload);
-      state.stats = updateStats(state.tasks);
+    softDeleteTask(state, action) {
+      const task = state.tasks.find((t) => t.id === action.payload);
+      if (task) {
+        task.deleted = true;
+        state.stats = updateStats(state.tasks.filter((t) => !t.deleted));
+      }
+    },
+
+    restoreTask(state, action) {
+      const task = state.tasks.find((t) => t.id === action.payload);
+      if (task) {
+        task.deleted = false;
+        state.stats = updateStats(state.tasks.filter((t) => !t.deleted));
+      }
+    },
+
+    permanentlyDeleteTask(state, action) {
+      state.tasks = state.tasks.filter((t) => t.id !== action.payload);
+      state.stats = updateStats(state.tasks.filter((t) => !t.deleted));
     },
 
     editTask(state, action) {
@@ -53,7 +70,7 @@ const taskSlice = createSlice({
         task.team = team;
         task.dueDate = dueDate || null;
         task.notes = notes || "";
-        state.stats = updateStats(state.tasks);
+        state.stats = updateStats(state.tasks.filter((t) => !t.deleted));
       }
     },
 
@@ -63,5 +80,13 @@ const taskSlice = createSlice({
   },
 });
 
-export const { addTask, deleteTask, editTask, setSelectedFilter } = taskSlice.actions;
+export const {
+  addTask,
+  softDeleteTask,
+  restoreTask,
+  permanentlyDeleteTask,
+  editTask,
+  setSelectedFilter,
+} = taskSlice.actions;
+
 export default taskSlice.reducer;

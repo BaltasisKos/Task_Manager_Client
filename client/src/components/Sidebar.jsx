@@ -35,7 +35,7 @@ const Sidebar = () => {
     >
       {/* Logo and Collapse Toggle */}
       <div
-      className="flex items-center py-9 mt-5 cursor-pointer transition-all duration-700 ease-in-out justify-between"
+      className="flex items-center py-1 mt-1 cursor-pointer transition-all duration-700 ease-in-out justify-between"
     >
       <div
         className="flex items-center gap-2 transition-all duration-700 ease-in-out"
@@ -75,7 +75,7 @@ const Sidebar = () => {
       </div>
 
       {/* Main Navigation Links */}
-      <nav className="flex-1 py-2 flex flex-col gap-3">
+      <nav className="flex-1 py-9 flex flex-col gap-3">
         {DASHBOARD_SIDEBAR_LINKS.map((item) => (
           <SidebarLink key={item.key} item={item} isCollapsed={isCollapsed} />
         ))}

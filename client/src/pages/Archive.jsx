@@ -1,17 +1,22 @@
 import React from 'react'
 import Sidebar from '../components/Sidebar'
 import Header from '../components/Header'
+import ArchiveTable from '../components/ArchiveTable'
 
 const Archive = () => {
   return (
-    <div className='flex flex-row bg-neutral-100 h-screen w-screen overflow-hidden'>
-          <Sidebar/>
-          <div className='flex-1 h-screen w-screen'>
-          <Header/>
-          </div>
-          riuvbeirfbv
+    <div className="flex h-screen w-screen bg-neutral-100 overflow-hidden">
+      <Sidebar />     
+      {/* Main content area */}
+      <div className="flex-1 flex flex-col h-full overflow-hidden">
+        <Header />
+        {/* Content below the header */}
+        <div className="flex-1 flex  overflow-auto p-6">
+          <ArchiveTable />
         </div>
+      </div>
+    </div>
   )
 }
 
-export default Archive
+export default Archive;
