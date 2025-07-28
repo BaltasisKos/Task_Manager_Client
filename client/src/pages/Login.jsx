@@ -1,26 +1,58 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+
+// Validation schemas for login and signup
+const loginSchema = yup.object().shape({
+  email: yup.string().email("Invalid email").required("Email is required"),
+  password: yup.string().min(6, "Password must be at least 6 characters").required("Password is required"),
+});
+
+const signupSchema = yup.object().shape({
+  name: yup.string().required("Name is required"),
+  email: yup.string().email("Invalid email").required("Email is required"),
+  password: yup.string().min(6, "Password must be at least 6 characters").required("Password is required"),
+  confirmPassword: yup
+    .string()
+    .oneOf([yup.ref("password")], "Passwords must match")
+    .required("Confirm password is required"),
+  role: yup.string().required("Please select a role"),
+});
 
 function Login() {
-  const [isLoginMode, setIsLoginMode] = useState(true);
-  const navigate = useNavigate(); // 👈 Navigation hook
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  const handleLogin = (e) => {
-    e.preventDefault();
+  const isLoginMode = location.pathname === "/log-in";
 
-    // ✅ You can add real login validation here.
-    // For now, we'll just redirect to the dashboard.
+  // Choose schema based on mode
+  const schema = isLoginMode ? loginSchema : signupSchema;
+
+  // Initialize react-hook-form with resolver for yup
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: yupResolver(schema),
+  });
+
+  const onSubmit = (data) => {
+    // Here you can handle your API call or authentication logic
+    console.log("Form Data:", data);
     navigate("/dashboard");
   };
 
   return (
     <div className="relative min-h-screen flex items-center justify-center">
       <div className="relative z-10 w-full md:w-auto flex flex-col md:flex-row items-center justify-center gap-0 md:gap-40">
-        
-        {/* Left: Marketing Content */}
+
+        {/* Left Side */}
         <div className="h-full w-full lg:w-3/5 flex flex-col items-center justify-center px-50">
           <div className="w-full md:max-w-lg 2xl:max-w-3xl flex flex-col items-center justify-center gap-5 md:gap-y-10 2xl:-mt-20">
-            <p className="py-3 flex flex-col gap-0 md:gap-4 text-6xl  font-bold bg-gradient-to-r from-blue-600 via-cyan-600 to-cyan-400 bg-clip-text text-transparent cursor-default">
+            <p className="py-3 flex flex-col gap-0 md:gap-4 text-6xl font-bold bg-gradient-to-r from-blue-600 via-cyan-600 to-cyan-400 bg-clip-text text-transparent cursor-default">
               <span>Task Manager</span>
             </p>
             <span className="flex gap-1 py-1 px-3 border rounded-full text-sm md:text-base border-blue text-blue-500 cursor-default">
@@ -29,7 +61,7 @@ function Login() {
           </div>
         </div>
 
-        {/* Right: Login/Signup Form */}
+        {/* Right Side: Form */}
         <div className="w-[430px] bg-white p-8 rounded-2xl shadow-lg">
           <div className="flex justify-center mb-4">
             <h2 className="text-3xl font-semibold text-center mb-10 cursor-default">
@@ -43,7 +75,8 @@ function Login() {
               className={`w-1/2 text-lg font-medium transition-all z-10 cursor-pointer ${
                 isLoginMode ? "text-white" : "text-black"
               }`}
-              onClick={() => setIsLoginMode(true)}
+              onClick={() => navigate("/log-in")}
+              type="button"
             >
               Login
             </button>
@@ -51,7 +84,8 @@ function Login() {
               className={`w-1/2 text-lg font-medium transition-all z-10 cursor-pointer ${
                 !isLoginMode ? "text-white" : "text-black"
               }`}
-              onClick={() => setIsLoginMode(false)}
+              onClick={() => navigate("/register")}
+              type="button"
             >
               Signup
             </button>
@@ -63,47 +97,67 @@ function Login() {
           </div>
 
           {/* Form */}
-          <form onSubmit={handleLogin} className="space-y-4 ">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
             {!isLoginMode && (
-              <input
-                type="text"
-                placeholder="Name"
-                required
-                className="w-full p-3 border-b-2 border-gray-300 outline-none focus:border-cyan-500 placeholder-gray-400"
-              />
+              <>
+                <input
+                  type="text"
+                  placeholder="Name"
+                  {...register("name")}
+                  className={`w-full p-3 border-b-2 outline-none placeholder-gray-400 ${
+                    errors.name ? "border-red-500" : "border-gray-300 focus:border-cyan-500"
+                  }`}
+                />
+                <p className="text-red-500 text-sm">{errors.name?.message}</p>
+              </>
             )}
 
             <input
               type="email"
               placeholder="Email Address"
-              required
-              className="w-full p-3 border-b-2 border-gray-300 outline-none focus:border-cyan-500 placeholder-gray-400"
+              {...register("email")}
+              className={`w-full p-3 border-b-2 outline-none placeholder-gray-400 ${
+                errors.email ? "border-red-500" : "border-gray-300 focus:border-cyan-500"
+              }`}
             />
+            <p className="text-red-500 text-sm">{errors.email?.message}</p>
+
             <input
               type="password"
               placeholder="Password"
-              required
-              className="w-full p-3 border-b-2 border-gray-300 outline-none focus:border-cyan-500 placeholder-gray-400"
+              {...register("password")}
+              className={`w-full p-3 border-b-2 outline-none placeholder-gray-400 ${
+                errors.password ? "border-red-500" : "border-gray-300 focus:border-cyan-500"
+              }`}
             />
+            <p className="text-red-500 text-sm">{errors.password?.message}</p>
 
             {!isLoginMode && (
               <>
                 <input
                   type="password"
                   placeholder="Confirm Password"
-                  required
-                  className="w-full p-3 border-b-2 border-gray-300 outline-none focus:border-cyan-500 placeholder-gray-400"
+                  {...register("confirmPassword")}
+                  className={`w-full p-3 border-b-2 outline-none placeholder-gray-400 ${
+                    errors.confirmPassword ? "border-red-500" : "border-gray-300 focus:border-cyan-500"
+                  }`}
                 />
+                <p className="text-red-500 text-sm">{errors.confirmPassword?.message}</p>
+
                 <select
-                  required
-                  className="w-full p-3 border-b-2 border-gray-300 outline-none focus:border-cyan-500 text-gray-400"
+                  {...register("role")}
+                  className={`w-full p-3 border-b-2 outline-none text-gray-400 ${
+                    errors.role ? "border-red-500" : "border-gray-300 focus:border-cyan-500"
+                  }`}
+                  defaultValue=""
                 >
-                  <option value="" disabled selected>
+                  <option value="" disabled>
                     Select Role
                   </option>
                   <option value="admin">Admin</option>
                   <option value="user">User</option>
                 </select>
+                <p className="text-red-500 text-sm">{errors.role?.message}</p>
               </>
             )}
 
@@ -117,20 +171,19 @@ function Login() {
 
             <button
               type="submit"
-              className="w-full p-3 bg-gradient-to-r from-blue-700 via-cyan-600 to-cyan-200 text-white rounded-full text-lg font-medium hover:opacity-90 transition cursor-pointer"
+              disabled={isSubmitting}
+              className="w-full p-3 bg-gradient-to-r from-blue-700 via-cyan-600 to-cyan-200 text-white rounded-full text-lg font-medium hover:opacity-90 transition cursor-pointer disabled:opacity-50"
             >
               {isLoginMode ? "Login" : "Signup"}
             </button>
 
             <p className="text-center text-gray-600 cursor-default">
-              {isLoginMode
-                ? "Don't have an account?"
-                : "Already have an account?"}{" "}
+              {isLoginMode ? "Don't have an account?" : "Already have an account?"}{" "}
               <a
                 href="#"
                 onClick={(e) => {
                   e.preventDefault();
-                  setIsLoginMode(!isLoginMode);
+                  navigate(isLoginMode ? "/register" : "/log-in");
                 }}
                 className="text-cyan-600 hover:underline"
               >

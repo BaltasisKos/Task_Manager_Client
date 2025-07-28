@@ -6,7 +6,7 @@ import {
 } from './lib/consts/navigation';
 import userIcon from '../assets/png-transparent-computer-icons-businessperson-senior-management-business-hand-people-business.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars } from '@fortawesome/free-solid-svg-icons';
+import { faXmark } from '@fortawesome/free-solid-svg-icons';
 
 const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -69,7 +69,8 @@ const Sidebar = () => {
             className="text-black hover:text-blue-500 transition-colors mr-2 cursor-pointer"
             aria-label="Collapse sidebar"
           >
-            <FontAwesomeIcon icon={faBars} />
+            <FontAwesomeIcon icon={faXmark} />
+
           </button>
         )}
       </div>

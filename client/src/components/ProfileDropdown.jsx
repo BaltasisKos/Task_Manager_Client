@@ -48,7 +48,7 @@ const ProfileDropdown = () => {
           <DropdownMenu.Content
             sideOffset={8}
             align="end"
-            className="bg-white rounded-md shadow-lg p-2 w-52 z-50"
+            className=" bg-white rounded-md shadow-lg p-2 w-52 z-50 "
           >
             {/* 👤 User Info */}
             <div className="px-3 py-2 text-sm text-gray-700 border-b">

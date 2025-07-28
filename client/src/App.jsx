@@ -1,6 +1,6 @@
 // src/App.js
 import './App.css';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import ParticlesComponent from './components/Particles';
 import Dashboard from './pages/Dashboard';
@@ -14,7 +14,9 @@ function App() {
       <div className="content">
         <Router>
           <Routes>
-            <Route path="/" element={<Login />} />   
+            <Route path="/" element={<Navigate to="/log-in" replace />} />
+            <Route path="/log-in" element={<Login />} />
+            <Route path="/register" element={<Login />} />   
             
             <Route path="/dashboard" element={<Dashboard />}/>
             <Route path="tasks" element={<Tasks/>}/>

@@ -4,7 +4,6 @@ import { LiaTasksSolid } from "react-icons/lia";
 import { RiProgress5Line } from "react-icons/ri";
 import { PiMastodonLogoFill } from "react-icons/pi";
 import { RiTeamLine } from "react-icons/ri";
-import { BsFillTrash3Fill } from "react-icons/bs";
 import {HiOutlineCog} from "react-icons/hi"
 import { FaBoxArchive } from "react-icons/fa6";
 
