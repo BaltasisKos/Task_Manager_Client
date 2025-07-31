@@ -7,22 +7,24 @@ const CompletedTasksTable = () => {
   const completedTasks = tasks.filter((task) => task.status === 'completed');
 
   return (
-    <div className="w-full py-10 px-4">
-      <div className="flex justify-center mb-4">
-        <h2 className="text-xl mb-8 font-semibold text-gray-700">
-          Completed Tasks
-        </h2>
+    <div className="w-full py-5 px-4">
+      <div className="mb-8">
+        <div className="flex items-center gap-4 mb-6">
+        <div className="flex-grow border-t border-white opacity-100"></div>
+        <h2 className="text-2xl font-bold text-white whitespace-nowrap">Completed</h2>
+        <div className="flex-grow border-t border-white opacity-100"></div>
+      </div>
       </div>
 
-      <div className="overflow-x-auto shadow-2xl">
-          <table className="min-w-full border border-gray-300 rounded">
+      <div className="overflow-x-auto shadow-2xl rounded">
+          <table className="min-w-full bg-white">
             <thead>
-              <tr>
-                <th className="p-3 border-b text-center">Task Title</th>
-                <th className="p-3 border-b text-center">Status</th>
-                <th className="p-3 border-b text-center">Team</th>
-                <th className="p-3 border-b text-center">Created At</th>
-                <th className="p-3 border-b text-center">Actions</th>
+              <tr className='bg-gradient-to-r from-cyan-500 to-cyan-400'>
+                <th className="p-3 border-b border-b-blue-700 text-center">Task Title</th>
+                <th className="p-3 border-b border-b-blue-700 text-center">Status</th>
+                <th className="p-3 border-b border-b-blue-700 text-center">Team</th>
+                <th className="p-3 border-b border-b-blue-700 text-center">Created At</th>
+                <th className="p-3 border-b border-b-blue-700 text-center">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -34,7 +36,7 @@ const CompletedTasksTable = () => {
       </tr>
     ) : (
       completedTasks.map((task) => (
-        <tr key={task.id} className="border-b">
+        <tr key={task.id} >
           <td className="p-2">{task.title}</td>
           <td className="p-2">{task.team || '—'}</td>
           <td className="p-2">

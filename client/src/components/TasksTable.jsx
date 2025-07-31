@@ -15,10 +15,18 @@ import {
 } from "lucide-react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { CheckCircle, Clock, ClipboardList, ListTodo, Plus, MoreVertical } from "lucide-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faXmark } from "@fortawesome/free-solid-svg-icons";
+import TextField from '@mui/material/TextField';
+import MenuItem from '@mui/material/MenuItem';
+import TeamsTable from '../components/TeamsTable'
+
+
 
 const TasksTable = () => {
   const dispatch = useDispatch();
-  const { tasks, selectedFilter } = useSelector((state) => state.tasks);
+  const { tasks, selectedFilter, stats } = useSelector((state) => state.tasks);
 
   const [title, setTitle] = useState("");
   const [team, setTeam] = useState("");
@@ -40,10 +48,9 @@ const TasksTable = () => {
 
   const filteredTasks = (() => {
   if (selectedFilter === "allTasks") {
-    // Show all except completed
-    return tasks.filter(t => t.status !== "completed");
+    return tasks.filter(t => t.status !== "completed" && !t.deleted);
   }
-  return tasks.filter((t) => t.status === selectedFilter);
+  return tasks.filter((t) => t.status === selectedFilter && !t.deleted);
 })();
 
 
@@ -123,44 +130,140 @@ const TasksTable = () => {
     );
   };
 
+  const boxes = [
+      {
+        key: "allTasks",
+        label: "All Tasks",
+        value: stats.total,
+        icon: <ClipboardList className="text-blue-500" />,
+        bg: "bg-blue-50 rounded",
+      },
+      // {
+      //   key: "completed",
+      //   label: "Completed",
+      //   value: stats.completed,
+      //   icon: <CheckCircle className="text-green-500" />,
+      //   bg: "bg-green-50 rounded",
+      // },
+      {
+        key: "inProgress",
+        label: "In Progress",
+        value: stats.inProgress,
+        icon: <Clock className="text-yellow-500" />,
+        bg: "bg-yellow-50 rounded",
+      },
+      {
+        key: "todo",
+        label: "To Do",
+        value: stats.todo,
+        icon: <ListTodo className="text-purple-500" />,
+        bg: "bg-purple-50 rounded",
+      },
+    ];
+
+    const [dropdownOpenId, setDropdownOpenId] = useState(null);
+
+
   return (
-    <div className="w-full py-10 px-4">
+    <div className="w-full py-5 px-4">
+      <div className="flex items-center gap-4 mb-6">
+        <div className="flex-grow border-t border-white opacity-100"></div>
+        <h2 className="text-2xl font-bold text-white whitespace-nowrap">Tasks</h2>
+        <div className="flex-grow border-t border-white opacity-100"></div>
+      </div>
     {filteredTasks.length === 0 ? (
-      <div className="flex flex-col items-center justify-center min-h-[300px]">
+      <div className="flex justify-start mb-4">
         {/* Centered Create Button with No Tasks */}
+        <i class="fas fa-plus"></i>
         <button
           onClick={() => setShowAddModal(true)}
-          className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
-        >
-          Create New Task
-        </button>
-        <span className="text-gray-500 mt-4">No tasks found.</span>
+          className="border text-white px-6 py-2 rounded hover:bg-blue-500 cursor-pointer flex items-center gap-1 "
+          >
+          <Plus size={18}/>
+          Add Task
+          </button>
+
       </div>
     ) : (
-      <div className="mb-6">
+      <div className="mb-6 flex justify-start">
         {/* Top-Left Create Button when tasks exist */}
         <button
           onClick={() => setShowAddModal(true)}
-          className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+          className="border text-white px-6 py-2 rounded hover:bg-cyan-400 cursor-pointer flex items-center gap-1"
         >
-          Create New Task
+          <Plus size={18}/>
+          Add Task
         </button>
       </div>
     )}
 
+      {/* Stats Boxes */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-4 mb-8">
+              {boxes.map((box) => (
+                <button
+                  key={box.label}
+                  onClick={() => dispatch(setSelectedFilter())}
+                  className={`p-4 flex items-center justify-between shadow ${box.bg} w-full`}
+                >
+                  {/* Left Icon */}
+                  <div className="text-3xl">{box.icon}</div>
+
+                  {/* Center Label */}
+                  <div className="flex-1 text-left pl-4">
+                    <div className="text-gray-700 text-sm">{box.label}</div>
+                  </div>
+
+                  {/* Right Plus Icon */}
+                  <div className="text-xl">
+                    <Plus size={24} className="text-blue-500" />
+                  </div>
+                </button>
+
+              ))}
+            </div>
+
+
       {/* Task Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pt-6">
         {filteredTasks.map((task) => (
-          <div key={task.id} className="rounded shadow-2xl p-4 bg-white">
+          <div key={task.id} className="relative rounded shadow-2xl p-4 bg-white">
+            {/* Dropdown menu */}
+            <div className="absolute top-2 right-2">
+              <button onClick={() => setDropdownOpenId(dropdownOpenId === task.id ? null : task.id)}>
+                <MoreVertical size={20}  className='cursor-pointer'/>
+              </button>
+              {dropdownOpenId === task.id && (
+                <div className="absolute right-0 mt-2 w-32 bg-white border rounded shadow z-10 ">
+                  <button
+                    onClick={() => {
+                      setDropdownOpenId(null);
+                      startEdit(task);
+                    }}
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => {
+                      setDropdownOpenId(null);
+                      setDeleteConfirmId(task.id);
+                    }}
+                    className="block w-full text-left px-4 py-2 text-red-600 hover:bg-red-500 hover:text-white cursor-pointer"
+                  >
+                    Delete
+                  </button>
+                </div>
+              )}
+            </div>
             <table className="table-fixed w-full border-collapse">
               <tbody>
-                <tr className="border-b">
-                  <th className="text-left p-2 w-1/3">Title:</th>
-                  <td className="p-2">
+                <tr className="border-b ">
+                  {/* <th className="text-left p-10">Title:</th> */}
+                  <td colSpan={2} className='text-center text-xl font-semibold py-6'>
                     {editId === task.id ? (
                       <>
                         <input
-                          className="border p-1 w-full rounded"
+                          className="border p-1 w-full rounded "
                           value={editTitle}
                           onChange={(e) => setEditTitle(e.target.value)}
                         />
@@ -237,56 +340,45 @@ const TasksTable = () => {
                     ) : task.notes ? (
                       task.notes
                     ) : (
-                      "—"
+                      ""
                     )}
                   </td>
                 </tr>
               </tbody>
             </table>
 
-            {/* Action Buttons */}
-            <div className="flex justify-center gap-3 mt-3">
+             {/* Actions */}
+            <div className="flex justify-center mt-4 gap-2">
               {editId === task.id ? (
                 <>
                   <button
                     onClick={saveEdit}
-                    className="flex items-center gap-2 bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
+                    className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 flex items-center gap-1 cursor-pointer"
                   >
-                    <Save size={16} /> Save
+                    <Save size={16} />
+                    Save
                   </button>
                   <button
                     onClick={cancelEdit}
-                    className="flex items-center gap-2 bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600"
+                    className="bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600 flex items-center gap-1 cursor-pointer"
                   >
-                    <XCircle size={16} /> Cancel
+
+                    <XCircle size={16} />
+                    Cancel
                   </button>
                 </>
               ) : (
-                <>
-                  <button
-                    onClick={() => startEdit(task)}
-                    className="flex items-center gap-2 bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
-                  >
-                    <Edit2 size={16} /> Edit
-                  </button>
-                  <button
-                    onClick={() => setDeleteConfirmId(task.id)}
-                    className="flex items-center gap-2 bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
-                  >
-                    <Trash2 size={16} /> Delete
-                  </button>
-                  <button
-                    onClick={() => completeTask(task)}
-                    className="flex items-center gap-2 bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
-                  >
-                    <Check size={16} /> Complete
-                  </button>
-                </>
+                <button
+                  onClick={() => completeTask(task)}
+                  className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 cursor-pointer flex items-center gap-1"
+                >
+                  <Check size={16} /> Complete
+                </button>
               )}
             </div>
           </div>
         ))}
-      </div>
+        </div>
 
       {/* Add Task Modal */}
       {showAddModal && (
@@ -295,48 +387,85 @@ const TasksTable = () => {
           onClick={() => setShowAddModal(false)}
         >
           <div
-            className="bg-white rounded-xl p-6 w-full max-w-md shadow-xl"
+            className="relative bg-white rounded p-6 w-full max-w-md shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-lg font-semibold mb-4">Add New Task</h3>
-            <input
-              type="text"
-              className="border p-2 rounded w-full mb-3"
-              placeholder="Task title"
-              value={title}
-              onChange={(e) => {
-                setTitle(e.target.value);
-                if (titleError) setTitleError("");
+            {/* Close Icon in Top-Right */}
+            <button
+              onClick={() => setShowAddModal(false)}
+              className="absolute top-4 right-4 text-black hover:text-cyan-500"
+            >
+              <FontAwesomeIcon icon={faXmark} className="text-xl cursor-pointer" />
+            </button>
+
+            {/* Centered Title */}
+            <h3 className="text-lg font-semibold text-center mb-4">Add Task</h3>
+
+            {/* Input Field */}
+            <TextField
+                  required
+                  label="Title"
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value )}
+                  variant="filled"
+                  fullWidth
+                  margin="dense"
+                  sx={{
+                  backgroundColor: 'white', // sets the background
+                  '& .MuiFilledInput-root': {
+                  backgroundColor: 'white', // targets the input field itself
+                },
               }}
-            />
+                /> 
+
             {titleError && <p className="text-sm text-red-500 mb-2">{titleError}</p>}
 
             {/* Team & Status Row */}
             <div className="flex flex-col sm:flex-row gap-4 mb-3">
               {/* Team Name */}
               <div className="w-full sm:w-1/2">
-                <label className="block text-sm font-medium mb-1">Team</label>
-                <input
-                  type="text"
-                  className="border p-2 rounded w-full"
-                  placeholder="Team name"
-                  value={team}
-                  onChange={(e) => setTeam(e.target.value)}
-                />
+                <TextField
+                      required
+                      label="Team"
+                      type="text"
+                      value={team}
+                      onChange={(e) => setTeam(e.target.value )}
+                      variant="filled"
+                      fullWidth
+                      margin="dense"
+                      sx={{
+                      backgroundColor: 'white', // sets the background
+                      '& .MuiFilledInput-root': {
+                      backgroundColor: 'white', // targets the input field itself
+                    },
+                  }}
+                    />
               </div>
 
               {/* Status */}
               <div className="w-full sm:w-1/2">
-                <label className="block text-sm font-medium mb-1">Status</label>
-                <select
-                  className="border p-2 rounded w-full"
+                <TextField
+                  required
+                  select
+                  label="Status"
                   value={status}
                   onChange={(e) => setStatus(e.target.value)}
+                  fullWidth
+                  margin="dense"
+                  variant="filled"
+                  sx={{
+                    backgroundColor: 'white',
+                    '& .MuiInputBase-root': {
+                      backgroundColor: 'white',
+                    },
+                  }}
                 >
-                  <option value="todo">To Do</option>
-                  <option value="inProgress">In Progress</option>
-                  <option value="completed">Completed</option>
-                </select>
+                  <MenuItem value="todo">To Do</MenuItem>
+                  <MenuItem value="inProgress">In Progress</MenuItem>
+                  <MenuItem value="completed">Completed</MenuItem>
+                </TextField>
+  
               </div>
             </div>
 
@@ -344,7 +473,7 @@ const TasksTable = () => {
             <div className="flex flex-col sm:flex-row gap-4 mb-3">
               {/* Created Date */}
               <div className="w-full sm:w-1/2">
-                <label className="block text-sm font-medium mb-1 flex items-center gap-1">
+                <label className="text-sm font-medium mb-1 flex items-center gap-1">
                   <CalendarDays className="w-4 h-4 text-gray-500" />
                   Created Date
                 </label>
@@ -360,7 +489,7 @@ const TasksTable = () => {
 
               {/* Due Date */}
               <div className="w-full sm:w-1/2">
-                <label className="block text-sm font-medium mb-1 flex items-center gap-1">
+                <label className="text-sm font-medium mb-1 flex items-center gap-1">
                   <CalendarDays className="w-4 h-4 text-gray-500" />
                   Due Date
                 </label>
@@ -376,28 +505,37 @@ const TasksTable = () => {
             </div>
 
             {/* Notes */}
-            <textarea
-              className="border p-2 rounded w-full mb-4 h-24 resize-none"
-              placeholder="Task notes..."
+            <TextField
+              id="standard-multiline-static"
+              label="Write your notes"
+              multiline
+              rows={4}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
+              marigin="dense"
+              variant="filled"
+              fullWidth
+              sx={{
+                fontSize: '1rem',
+                backgroundColor: 'white',
+                '& .MuiFilledInput-root': {
+                  fontSize: '1rem',
+                  paddingTop: '26px',
+                  backgroundColor: 'white',
+                },
+              }}
             />
 
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={() => setShowAddModal(false)}
-                className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400"
-              >
-                Cancel
-              </button>
+            <div className="flex justify-center mt-4">
+              
               <button
                 onClick={() => {
                   handleAddTask();
                   if (!titleError) setShowAddModal(false);
                 }}
-                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                className="bg-blue-600 text-white px-16 py-2 rounded-4xl hover:bg-blue-700 cursor-pointer"
               >
-                Add Task
+                Add
               </button>
             </div>
           </div>
@@ -413,16 +551,16 @@ const TasksTable = () => {
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setDeleteConfirmId(null)}
-                className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400"
+                className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400 cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={() => {
-                  dispatch(deleteTask(deleteConfirmId));
+                  dispatch(softDeleteTask(deleteConfirmId));
                   setDeleteConfirmId(null);
                 }}
-                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 cursor-pointer"
               >
                 Delete
               </button>

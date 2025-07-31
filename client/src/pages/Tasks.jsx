@@ -13,7 +13,7 @@ const Tasks = () => {
         <Header />
 
         {/* Content below the header */}
-        <div className="flex-1 flex  overflow-auto p-6">
+        <div className="flex-1 flex  overflow-auto p-6 bg-gradient-to-r from-blue-700 to-blue-400">
           <TasksTable />
         </div>
       </div>

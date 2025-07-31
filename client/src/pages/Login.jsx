@@ -39,11 +39,58 @@ function Login() {
     resolver: yupResolver(schema),
   });
 
-  const onSubmit = (data) => {
-    // Here you can handle your API call or authentication logic
-    console.log("Form Data:", data);
-    navigate("/dashboard");
-  };
+  const onSubmit = async (data) => {
+  const API_URL = "http://localhost:5000/api/users/";
+
+  try {
+    if (isLoginMode) {
+      // Login logic
+      const response = await fetch(`${API_URL}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Login failed");
+      }
+
+      const result = await response.json();
+      console.log("Login successful:", result);
+
+      // Optionally store token
+      // localStorage.setItem("token", result.token);
+
+      navigate("/dashboard");
+    } else {
+      // Signup logic
+      const { confirmPassword, ...userData } = data; // exclude confirmPassword
+      const response = await fetch(`${API_URL}/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Signup failed");
+      }
+
+      const result = await response.json();
+      console.log("Signup successful:", result);
+
+      navigate("/dashboard");
+    }
+  } catch (error) {
+    console.error("Error:", error.message);
+    alert(error.message || "Something went wrong");
+  }
+};
+
 
   return (
     <div className="relative min-h-screen flex items-center justify-center">

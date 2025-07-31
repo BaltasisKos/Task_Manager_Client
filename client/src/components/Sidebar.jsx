@@ -29,13 +29,13 @@ const Sidebar = () => {
 
   return (
     <div
-      className={`flex flex-col bg-white text-black p-3 transition-all duration-700 ease-in-out
+      className={`flex flex-col bg-blue-700 text-white p-3 transition-all duration-700 ease-in-out
         ${isCollapsed ? 'w-20' : 'w-70'}`}
       style={{ minHeight: '100vh', overflow: 'hidden' }}
     >
       {/* Logo and Collapse Toggle */}
       <div
-      className="flex items-center py-1 mt-1 cursor-pointer transition-all duration-700 ease-in-out justify-between"
+      className="flex items-center py-1 mt-4 cursor-pointer transition-all duration-700 ease-in-out justify-between border- "
     >
       <div
         className="flex items-center gap-2 transition-all duration-700 ease-in-out"
@@ -52,7 +52,7 @@ const Sidebar = () => {
           <img
             src={userIcon}
             alt="User Icon"
-            className="ml-4 w-8 h-8 rounded-2xl flex-shrink-0"
+            className="ml-4 w-7 h-7 rounded-2xl flex-shrink-0"
           />
           <span
             className={`overflow-hidden whitespace-nowrap transition-all duration-700 ease-in-out
@@ -66,7 +66,7 @@ const Sidebar = () => {
         {!isCollapsed && (
           <button
             onClick={toggleCollapse}
-            className="text-black hover:text-blue-500 transition-colors mr-2 cursor-pointer"
+            className="text-white hover:text-blue-500 transition-colors mr-2 cursor-pointer"
             aria-label="Collapse sidebar"
           >
             <FontAwesomeIcon icon={faXmark} />

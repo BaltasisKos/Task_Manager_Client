@@ -2,7 +2,7 @@ import { createSlice, nanoid } from "@reduxjs/toolkit";
 
 const initialState = {
   tasks: [],
-  selectedFilter: "total",
+  selectedFilter: "allTasks",
   stats: { total: 0, todo: 0, inProgress: 0, completed: 0 },
 };
 
