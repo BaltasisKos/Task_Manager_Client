@@ -21,6 +21,7 @@ import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import TeamsTable from '../components/TeamsTable'
+import { toast } from "sonner"
 
 
 
@@ -369,7 +370,7 @@ const TasksTable = () => {
                 </>
               ) : (
                 <button
-                  onClick={() => completeTask(task)}
+                  onClick={() => {completeTask(task), toast.success("Task successfully added to Archive");}}
                   className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 cursor-pointer flex items-center gap-1"
                 >
                   <Check size={16} /> Complete
@@ -531,6 +532,7 @@ const TasksTable = () => {
               <button
                 onClick={() => {
                   handleAddTask();
+                  toast.success("Task successfully added");
                   if (!titleError) setShowAddModal(false);
                 }}
                 className="bg-blue-600 text-white px-16 py-2 rounded-4xl hover:bg-blue-700 cursor-pointer"
@@ -559,6 +561,7 @@ const TasksTable = () => {
                 onClick={() => {
                   dispatch(softDeleteTask(deleteConfirmId));
                   setDeleteConfirmId(null);
+                  toast.success("Task successfully deleted");
                 }}
                 className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 cursor-pointer"
               >

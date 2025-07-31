@@ -5,12 +5,14 @@ import Login from './pages/Login';
 import ParticlesComponent from './components/Particles';
 import Dashboard from './pages/Dashboard';
 import {Completed, Archive, InProgress, Tasks, Team, ToDo} from './pages';
+import { Toaster } from "sonner";
 
 
 function App() {
   return (
     <div className="App">
       <ParticlesComponent id="particles" />
+      <Toaster />
       <div className="content">
         <Router>
           <Routes>
