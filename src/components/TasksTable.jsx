@@ -167,7 +167,7 @@ const TasksTable = () => {
 
   return (
     <div className="w-full py-5 px-4">
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-center gap-14 mb-6">
         <div className="flex-grow border-t border-white opacity-100"></div>
         <h2 className="text-2xl font-bold text-white whitespace-nowrap">Tasks</h2>
         <div className="flex-grow border-t border-white opacity-100"></div>
@@ -370,7 +370,7 @@ const TasksTable = () => {
                 </>
               ) : (
                 <button
-                  onClick={() => {completeTask(task), toast.success("Task successfully added to Archive");}}
+                  onClick={() => {completeTask(task), toast.success("Task Completed");}}
                   className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 cursor-pointer flex items-center gap-1"
                 >
                   <Check size={16} /> Complete
@@ -462,9 +462,9 @@ const TasksTable = () => {
                     },
                   }}
                 >
+                  <MenuItem value="" disabled >Select status:</MenuItem>
                   <MenuItem value="todo">To Do</MenuItem>
                   <MenuItem value="inProgress">In Progress</MenuItem>
-                  <MenuItem value="completed">Completed</MenuItem>
                 </TextField>
   
               </div>

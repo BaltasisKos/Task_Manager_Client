@@ -2,16 +2,16 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 
-const ToDoTasksTable = () => {
+const InProgressTasksTable = () => {
   const { tasks } = useSelector((state) => state.tasks);
-  const todoTasks = tasks.filter((task) => task.status === 'todo');
+  const inProgressTasks = tasks.filter((task) => task.status === 'inProgress');
 
   return (
     <div className="w-full py-5 px-4">
       <div className="mb-8">
-        <div className="flex items-center gap-4 mb-6">
+        <div className="flex items-center gap-14 mb-6">
         <div className="flex-grow border-t border-white opacity-100"></div>
-        <h2 className="text-2xl font-bold text-white whitespace-nowrap">Todo</h2>
+        <h2 className="text-2xl font-bold text-white whitespace-nowrap">In Progress</h2>
         <div className="flex-grow border-t border-white opacity-100"></div>
       </div>
       </div>
@@ -28,14 +28,14 @@ const ToDoTasksTable = () => {
               </tr>
             </thead>
             <tbody>
-    {todoTasks.length === 0 ? (
+    {inProgressTasks.length === 0 ? (
       <tr>
         <td colSpan={5} className="p-4 text-center text-gray-500">
-          No todo tasks found.
+          No completed tasks found.
         </td>
       </tr>
     ) : (
-      todoTasks.map((task) => (
+      inProgressTasks.map((task) => (
         <tr key={task.id} className="border-b">
           <td className="p-2">{task.title}</td>
           <td className="p-2">{task.team || '—'}</td>
@@ -54,4 +54,4 @@ const ToDoTasksTable = () => {
   );
 };
 
-export default ToDoTasksTable;
+export default InProgressTasksTable;

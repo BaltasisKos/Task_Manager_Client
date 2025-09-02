@@ -75,7 +75,7 @@ const DashStats = () => {
   return (
     <div className="w-full py-5 px-4">
       <div className="mb-8">
-        <div className="flex items-center gap-4 mb-6">
+        <div className="flex items-center gap-14 mb-6">
         <div className="flex-grow border-t border-white opacity-100"></div>
         <h2 className="text-2xl font-bold text-white whitespace-nowrap">Dashboard</h2>
         <div className="flex-grow border-t border-white opacity-100"></div>
