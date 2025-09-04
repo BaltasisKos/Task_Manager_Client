@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { setSelectedFilter } from "../store/taskSlice";
+import React from "react";
+import { useDispatch } from "react-redux";
+import { setSelectedFilter } from "../redux/slices/taskSlice";
 import {
   BarChart,
   Bar,
@@ -11,111 +11,76 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
+import { CheckCircle, Clock, ClipboardList, ListTodo } from "lucide-react";
 
-import TasksTable from "../components/TasksTable";
-import TeamsTable from "../components/TeamsTable";
-import { CheckCircle, Clock, ClipboardList, ListTodo, Plus, MoreVertical } from "lucide-react";
+// ✅ RTK Query hook
+import { useGetAllTaskQuery } from "../redux/slices/api/taskApiSlice";
 
 const DashStats = () => {
   const dispatch = useDispatch();
-  const { tasks, selectedFilter, stats} = useSelector((state) => state.tasks);
-
-  const [timeView, setTimeView] = useState("month");
+  const { data: tasks = [] } = useGetAllTaskQuery(); // fetch tasks automatically
 
   const boxes = [
-      {
-        key: "allTasks",
-        label: "All Tasks",
-        value: stats.total,
-        icon: <ClipboardList className="text-blue-500" />,
-        bg: "bg-blue-50 rounded",
-      },
-      {
-        key: "completed",
-        label: "Completed",
-        value: stats.completed,
-        icon: <CheckCircle className="text-green-500" />,
-        bg: "bg-green-50 rounded",
-      },
-      {
-        key: "inProgress",
-        label: "In Progress",
-        value: stats.inProgress,
-        icon: <Clock className="text-yellow-500" />,
-        bg: "bg-yellow-50 rounded",
-      },
-      {
-        key: "todo",
-        label: "To Do",
-        value: stats.todo,
-        icon: <ListTodo className="text-purple-500" />,
-        bg: "bg-purple-50 rounded",
-      },
-    ];
-
-  const chartData = [
     {
-      name: "All",
-      count: tasks.filter((t) => !t.deleted).length,
+      key: "allTasks",
+      label: "All Tasks",
+      value: tasks.length,
+      icon: <ClipboardList className="text-blue-500" />,
+      bg: "bg-blue-50 rounded",
     },
     {
-      name: "To Do",
-      count: tasks.filter((t) => t.status === "todo" && !t.deleted).length,
+      key: "completed",
+      label: "Completed",
+      value: tasks.filter((t) => t.status === "completed").length,
+      icon: <CheckCircle className="text-green-500" />,
+      bg: "bg-green-50 rounded",
     },
     {
-      name: "In Progress",
-      count: tasks.filter((t) => t.status === "inProgress" && !t.deleted).length,
+      key: "inProgress",
+      label: "In Progress",
+      value: tasks.filter((t) => t.status === "inProgress").length,
+      icon: <Clock className="text-yellow-500" />,
+      bg: "bg-yellow-50 rounded",
     },
     {
-      name: "Completed",
-      count: tasks.filter((t) => t.status === "completed" && !t.deleted).length,
+      key: "todo",
+      label: "To Do",
+      value: tasks.filter((t) => t.status === "todo").length,
+      icon: <ListTodo className="text-purple-500" />,
+      bg: "bg-purple-50 rounded",
     },
   ];
 
+  const chartData = [
+    { name: "All", count: tasks.length },
+    { name: "To Do", count: tasks.filter((t) => t.status === "todo").length },
+    { name: "In Progress", count: tasks.filter((t) => t.status === "inProgress").length },
+    { name: "Completed", count: tasks.filter((t) => t.status === "completed").length },
+  ];
+
   return (
-    <div className="w-full py-5 px-4">
-      <div className="mb-8">
-        <div className="flex items-center gap-14 mb-6">
+    <div className="w-full py-10 px-4">
+      <div className="mb-12 flex items-center gap-14 ">
         <div className="flex-grow border-t border-white opacity-100"></div>
         <h2 className="text-2xl font-bold text-white whitespace-nowrap">Dashboard</h2>
         <div className="flex-grow border-t border-white opacity-100"></div>
       </div>
-      </div>
-      {/* Stats Boxes */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-              {boxes.map((box) => (
-                <button
-                  key={box.key}
-                  onClick={() => dispatch(setSelectedFilter(box.key))}
-                  className={`p-4 flex items-center gap-4 shadow ${box.bg} transition hover:scale-[1.02]`}
-                >
-                  <div className="text-3xl">{box.icon}</div>
-                  <div className="text-left">
-                    <div className="text-gray-700 text-sm">{box.label}</div>
-                    <div className="text-xl font-semibold">{box.value}</div>
-                  </div>
-                </button>
-              ))}
-            </div>
 
-      {/* Time Range Selector */}
-      <div className="flex items-center justify-center mb-2 gap-2">
-        <button
-          onClick={() => setTimeView("week")}
-          className={`px-3 py-1 rounded border ${
-            timeView === "week" ? "bg-blue-500 text-white" : "bg-white text-gray-700"
-          }`}
-        >
-          Week
-        </button>
-        <button
-          onClick={() => setTimeView("month")}
-          className={`px-3 py-1 rounded border ${
-            timeView === "month" ? "bg-blue-500 text-white" : "bg-white text-gray-700"
-          }`}
-        >
-          Month
-        </button>
+      {/* Stats Boxes */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {boxes.map((box) => (
+          <button
+            key={box.key}
+            onClick={() => dispatch(setSelectedFilter(box.key))}
+            className={`p-4 flex flex-col items-center gap-2 shadow ${box.bg} transition hover:scale-[1.02]`}
+          >
+            <div className="text-3xl">{box.icon}</div>
+            <div className="text-center">
+              <div className="text-gray-700 text-sm">{box.label}</div>
+              <div className="text-2xl font-bold">{box.value}</div>
+            </div>
+          </button>
+        ))}
       </div>
 
       {/* Chart */}
@@ -130,12 +95,6 @@ const DashStats = () => {
             <Bar dataKey="count" fill="#3b82f6" />
           </BarChart>
         </ResponsiveContainer>
-      </div>
-
-      {/* Two tables side by side */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <TasksTable />
-        <TeamsTable />
       </div>
     </div>
   );

@@ -41,7 +41,7 @@ const taskSlice = createSlice({
     },
 
     softDeleteTask(state, action) {
-      const task = state.tasks.find((t) => t.id === action.payload);
+      const task = state.tasks.find((t) => t._id === action.payload);
       if (task) {
         task.deleted = true;
         state.stats = updateStats(state.tasks.filter((t) => !t.deleted));

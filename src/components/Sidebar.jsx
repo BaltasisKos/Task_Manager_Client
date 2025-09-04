@@ -29,7 +29,7 @@ const Sidebar = () => {
 
   return (
     <div
-      className={`flex flex-col bg-blue-700 text-white p-3 transition-all duration-700 ease-in-out
+      className={`flex flex-col bg-blue-600 text-white p-3 transition-all duration-700 ease-in-out
         ${isCollapsed ? 'w-20' : 'w-70'}`}
       style={{ minHeight: '100vh', overflow: 'hidden' }}
     >

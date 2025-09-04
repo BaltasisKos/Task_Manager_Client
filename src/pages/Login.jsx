@@ -3,6 +3,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import { setCredentials } from "../redux/slices/authSlice";
+import { useDispatch } from "react-redux";
+
 
 // Validation schemas for login and signup
 const loginSchema = yup.object().shape({
@@ -24,72 +27,63 @@ const signupSchema = yup.object().shape({
 function Login() {
   const location = useLocation();
   const navigate = useNavigate();
+  const dispatch = useDispatch(); // <-- ADD THIS
 
   const isLoginMode = location.pathname === "/log-in";
-
-  // Choose schema based on mode
   const schema = isLoginMode ? loginSchema : signupSchema;
 
-  // Initialize react-hook-form with resolver for yup
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm({
-    resolver: yupResolver(schema),
-  });
+  } = useForm({ resolver: yupResolver(schema) });
 
   const onSubmit = async (data) => {
-  const API_URL = "http://localhost:5000/api/users/";
+    const API_URL = "http://localhost:5000/api/users/";
 
-  try {
-    if (isLoginMode) {
-      // Login logic
-      const response = await fetch(`${API_URL}/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: data.email,
-          password: data.password,
-        }),
-      });
+    try {
+      let response;
+      let result;
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Login failed");
+      if (isLoginMode) {
+        response = await fetch(`${API_URL}login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: data.email, password: data.password }),
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || "Login failed");
+        }
+
+        result = await response.json();
+        console.log("Login successful:", result);
+        dispatch(setCredentials(result)); // <-- dispatch now works
+        navigate("/dashboard");
+      } else {
+        const { confirmPassword, ...userData } = data;
+        response = await fetch(`${API_URL}register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(userData),
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || "Signup failed");
+        }
+
+        result = await response.json();
+        console.log("Signup successful:", result);
+        dispatch(setCredentials(result));
+        navigate("/dashboard");
       }
-
-      const result = await response.json();
-      console.log("Login successful:", result);
-
-      // Optionally store token
-      // localStorage.setItem("token", result.token);
-
-      navigate("/dashboard");
-    } else {
-      // Signup logic
-      const { confirmPassword, ...userData } = data; // exclude confirmPassword
-      const response = await fetch(`${API_URL}/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userData),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Signup failed");
-      }
-
-      const result = await response.json();
-      console.log("Signup successful:", result);
-
-      navigate("/dashboard");
+    } catch (error) {
+      console.error("Error:", error.message);
+      alert(error.message || "Something went wrong");
     }
-  } catch (error) {
-    console.error("Error:", error.message);
-    alert(error.message || "Something went wrong");
-  }
-};
+  };
 
 
   return (
@@ -110,8 +104,8 @@ function Login() {
 
         {/* Right Side: Form */}
         <div className="w-[430px] bg-white p-8 rounded-2xl shadow-lg">
-          <div className="flex justify-center mb-4">
-            <h2 className="text-3xl font-semibold text-center mb-10 cursor-default">
+          <div className="flex justify-center mb-2">
+            <h2 className="text-3xl font-semibold text-center mb-8 cursor-default">
               {isLoginMode ? "Welcome Back!" : "Sign Up"}
             </h2>
           </div>
@@ -144,14 +138,14 @@ function Login() {
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-3" noValidate>
             {!isLoginMode && (
               <>
                 <input
                   type="text"
                   placeholder="Name"
                   {...register("name")}
-                  className={`w-full p-3 border-b-2 outline-none placeholder-gray-400 ${
+                  className={`w-full p-3 border-b-2 outline-none placeholder-gray-700 ${
                     errors.name ? "border-red-500" : "border-gray-300 focus:border-cyan-500"
                   }`}
                 />
@@ -163,7 +157,7 @@ function Login() {
               type="email"
               placeholder="Email Address"
               {...register("email")}
-              className={`w-full p-3 border-b-2 outline-none placeholder-gray-400 ${
+              className={`w-full p-3 border-b-2 outline-none placeholder-gray-700 ${
                 errors.email ? "border-red-500" : "border-gray-300 focus:border-cyan-500"
               }`}
             />
@@ -173,7 +167,7 @@ function Login() {
               type="password"
               placeholder="Password"
               {...register("password")}
-              className={`w-full p-3 border-b-2 outline-none placeholder-gray-400 ${
+              className={`w-full p-3 border-b-2 outline-none placeholder-gray-700 ${
                 errors.password ? "border-red-500" : "border-gray-300 focus:border-cyan-500"
               }`}
             />
@@ -185,7 +179,7 @@ function Login() {
                   type="password"
                   placeholder="Confirm Password"
                   {...register("confirmPassword")}
-                  className={`w-full p-3 border-b-2 outline-none placeholder-gray-400 ${
+                  className={`w-full p-3 border-b-2 outline-none placeholder-gray-700 ${
                     errors.confirmPassword ? "border-red-500" : "border-gray-300 focus:border-cyan-500"
                   }`}
                 />
@@ -193,7 +187,7 @@ function Login() {
 
                 <select
                   {...register("role")}
-                  className={`w-full p-3 border-b-2 outline-none text-gray-400 ${
+                  className={`w-full p-3 border-b-2 outline-none text-gray-700${
                     errors.role ? "border-red-500" : "border-gray-300 focus:border-cyan-500"
                   }`}
                   defaultValue=""

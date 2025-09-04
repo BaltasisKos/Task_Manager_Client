@@ -1,12 +1,13 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-// const API_URL = import.meta.env.VITE_APP_BASE_URL + "/api";
 const API_URL = "http://localhost:5000/api";
 
-const baseQuery = fetchBaseQuery({ baseUrl: API_URL });
-
 export const apiSlice = createApi({
-  baseQuery,
-  tagTypes: [],
+  reducerPath: "api", // required
+  baseQuery: fetchBaseQuery({
+    baseUrl: API_URL,
+    credentials: "include", // include cookies for auth
+  }),
+  tagTypes: ["User", "Task"], // optional, useful for cache invalidation
   endpoints: (builder) => ({}),
 });

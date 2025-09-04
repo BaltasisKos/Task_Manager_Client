@@ -10,7 +10,7 @@ const Dashboard = () => {
       <Sidebar/>
       <div className='flex-1 w-full overflow-y-auto'>
       <Header/>
-      <div className='px-3 py-2  flex-row gap-4 bg-gradient-to-r from-blue-700  to-blue-400'>
+      <div className='px-3 py-2  flex-row gap-4 bg-gradient-to-r from-blue-600 via-cyan-600 to-cyan-400'>
         <DashStats/>
       </div>
       </div>

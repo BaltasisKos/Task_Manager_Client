@@ -1,15 +1,19 @@
 // src/components/CompletedTasksTable.jsx
-import React from 'react';
-import { useSelector } from 'react-redux';
+import React from "react";
+import { useGetAllTaskQuery } from "../redux/slices/api/taskApiSlice";
 
 const InProgressTasksTable = () => {
-  const { tasks } = useSelector((state) => state.tasks);
-  const inProgressTasks = tasks.filter((task) => task.status === 'inProgress');
+  // ✅ Fetch tasks from backend
+  const { data: tasks = [], isLoading, isError } = useGetAllTaskQuery();
 
+  if (isLoading) return <p className="text-white">Loading tasks...</p>;
+  if (isError) return <p className="text-red-500">Error loading tasks</p>;
+
+  const inProgressTasks = tasks.filter((task) => task.status === "inProgress");
   return (
     <div className="w-full py-5 px-4">
       <div className="mb-8">
-        <div className="flex items-center gap-14 mb-6">
+        <div className="flex items-center gap-14 mb-12">
         <div className="flex-grow border-t border-white opacity-100"></div>
         <h2 className="text-2xl font-bold text-white whitespace-nowrap">In Progress</h2>
         <div className="flex-grow border-t border-white opacity-100"></div>
@@ -36,8 +40,8 @@ const InProgressTasksTable = () => {
       </tr>
     ) : (
       inProgressTasks.map((task) => (
-        <tr key={task.id} className="border-b">
-          <td className="p-2">{task.title}</td>
+        <tr key={task._id} className="border-b">
+          <td className="p-2">{task.name}</td>
           <td className="p-2">{task.team || '—'}</td>
           <td className="p-2">
             {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : '—'}

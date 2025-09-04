@@ -13,13 +13,24 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     setCredentials: (state, action) => {
-      state.user = action.payload;
-      localStorage.setItem("userInfo", JSON.stringify(action.payload));
+      const { _id, id, name, fullName, username, email, role } = action.payload;
+
+      // Normalize user object so UI always has consistent keys
+      state.user = {
+        id: _id || id || null,
+        name: name || fullName || username || "Guest",
+        email: email || "-",
+        role: role || "user",
+      };
+
+      localStorage.setItem("userInfo", JSON.stringify(state.user));
     },
-    logout: (state, action) => {
+
+    logout: (state) => {
       state.user = null;
       localStorage.removeItem("userInfo");
     },
+
     setOpenSidebar: (state, action) => {
       state.isSidebarOpen = action.payload;
     },

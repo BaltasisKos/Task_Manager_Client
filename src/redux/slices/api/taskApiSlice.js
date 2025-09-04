@@ -1,125 +1,99 @@
 import { apiSlice } from "../apiSlice";
 
-const TASKS_URL = "/task";
+const TASKS_URL = "/tasks"; // make sure this matches your backend route
 
-export const postApiSlice = apiSlice.injectEndpoints({
+export const taskApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
+    // CREATE TASK
     createTask: builder.mutation({
       query: (data) => ({
-        url: `${TASKS_URL}/create`,
+        url: TASKS_URL,
         method: "POST",
         body: data,
-        credentials: "include",
       }),
+      invalidatesTags: [{ type: "Task", id: "LIST" }],
     }),
 
-    duplicateTask: builder.mutation({
-      query: (id) => ({
-        url: `${TASKS_URL}/duplicate/${id}`,
-        method: "POST",
-        body: {},
-        credentials: "include",
-      }),
-    }),
-
-    updateTask: builder.mutation({
-      query: (data) => ({
-        url: `${TASKS_URL}/update/${data._id}`,
-        method: "PUT",
-        body: data,
-        credentials: "include",
-      }),
-    }),
-
+    // READ ALL TASKS
     getAllTask: builder.query({
-      query: ({ strQuery, isTrashed, search }) => ({
-        url: `${TASKS_URL}?stage=${strQuery}&isTrashed=${isTrashed}&search=${search}`,
+      query: () => ({
+        url: TASKS_URL,
         method: "GET",
-        credentials: "include",
       }),
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map(({ _id }) => ({ type: "Task", id: _id })),
+              { type: "Task", id: "LIST" },
+            ]
+          : [{ type: "Task", id: "LIST" }],
     }),
 
+    // READ SINGLE TASK
     getSingleTask: builder.query({
       query: (id) => ({
         url: `${TASKS_URL}/${id}`,
         method: "GET",
-        credentials: "include",
       }),
+      providesTags: (result, error, id) => [{ type: "Task", id }],
     }),
 
-    createSubTask: builder.mutation({
-      query: ({ data, id }) => ({
-        url: `${TASKS_URL}/create-subtask/${id}`,
+    // UPDATE TASK
+    updateTask: builder.mutation({
+      query: (data) => ({
+        url: `${TASKS_URL}/${data._id}`,
         method: "PUT",
         body: data,
-        credentials: "include",
       }),
+      invalidatesTags: (result, error, { _id }) => [
+        { type: "Task", id: _id },
+        { type: "Task", id: "LIST" },
+      ],
     }),
 
-    postTaskActivity: builder.mutation({
-      query: ({ data, id }) => ({
-        url: `${TASKS_URL}/activity/${id}`,
-        method: "POST",
-        body: data,
-        credentials: "include",
-      }),
-    }),
-
-    trashTast: builder.mutation({
-      query: ({ id }) => ({
+    // SOFT DELETE (move to archive)
+    softDeleteTask: builder.mutation({
+      query: (id) => ({
         url: `${TASKS_URL}/${id}`,
-        method: "PUT",
-        credentials: "include",
+        method: "PATCH",
+        body: { status: "deleted" }, // moves task to archive
       }),
+      invalidatesTags: (result, error, id) => [
+        { type: "Task", id },
+        { type: "Task", id: "LIST" },
+      ],
     }),
 
-    deleteRestoreTast: builder.mutation({
-      query: ({ id, actionType }) => ({
-        url: `${TASKS_URL}/delete-restore/${id}?actionType=${actionType}`,
+    // RESTORE TASK (from archive)
+    restoreTask: builder.mutation({
+  query: (id) => ({
+    url: `/tasks/${id}/restore`,  // matches backend route
+    method: "PATCH",
+  }),
+  invalidatesTags: [{ type: "Task", id: "LIST" }], // refresh task list
+}),
+
+
+    // PERMANENT DELETE
+    deleteTask: builder.mutation({
+      query: (id) => ({
+        url: `${TASKS_URL}/${id}`,
         method: "DELETE",
-        credentials: "include",
       }),
-    }),
-
-    getDasboardStats: builder.query({
-      query: () => ({
-        url: `${TASKS_URL}/dashboard`,
-        method: "GET",
-        credentials: "include",
-      }),
-    }),
-
-    changeTaskStage: builder.mutation({
-      query: (data) => ({
-        url: `${TASKS_URL}/change-stage/${data?.id}`,
-        method: "PUT",
-        body: data,
-        credentials: "include",
-      }),
-    }),
-
-    changeSubTaskStatus: builder.mutation({
-      query: (data) => ({
-        url: `${TASKS_URL}/change-status/${data?.id}/${data?.subId}`,
-        method: "PUT",
-        body: data,
-        credentials: "include",
-      }),
+      invalidatesTags: (result, error, id) => [
+        { type: "Task", id },
+        { type: "Task", id: "LIST" },
+      ],
     }),
   }),
 });
 
 export const {
-  usePostTaskActivityMutation,
   useCreateTaskMutation,
   useGetAllTaskQuery,
-  useCreateSubTaskMutation,
-  useTrashTastMutation,
-  useDeleteRestoreTastMutation,
-  useDuplicateTaskMutation,
-  useUpdateTaskMutation,
   useGetSingleTaskQuery,
-  useGetDasboardStatsQuery,
-  useChangeTaskStageMutation,
-  useChangeSubTaskStatusMutation,
-} = postApiSlice;
+  useUpdateTaskMutation,
+  useSoftDeleteTaskMutation,
+  useRestoreTaskMutation,
+  useDeleteTaskMutation, // now fully exists
+} = taskApiSlice;

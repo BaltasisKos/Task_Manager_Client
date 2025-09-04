@@ -11,7 +11,7 @@ const Team = () => {
       <div className="flex-1 flex flex-col h-full overflow-hidden">
         <Header />
         {/* Content below the header */}
-        <div className="flex-1 flex  overflow-auto p-6 bg-gradient-to-r from-blue-700 to-blue-400">
+        <div className="flex-1 flex  overflow-auto p-6 bg-gradient-to-r from-blue-600 via-cyan-600 to-cyan-400">
           <TeamsTable />
         </div>
       </div>

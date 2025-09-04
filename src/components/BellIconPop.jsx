@@ -8,7 +8,7 @@ const BellIconPop = () => {
     <Popover.Root>
       <Popover.Trigger asChild>
         <button
-          className="text-white hover:text-black p-1"
+          className="text-white hover:text-blue-800 p-1 cursor-pointer"
           aria-label="More info"
         >
           <HiOutlineBell fontSize={24}/>

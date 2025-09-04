@@ -58,6 +58,10 @@ const ParticlesComponent = (props) => {
           grab: {
             distance: 150,
           },
+          repulse: {
+            distance: 110, // <-- default or not set
+            duration: 0.2,
+  }
         },
       },
       particles: {
@@ -78,7 +82,7 @@ const ParticlesComponent = (props) => {
             default: "bounce",
           },
           random: true,
-          speed: 3,
+          speed: 2,
           straight: false,
         },
         number: {
