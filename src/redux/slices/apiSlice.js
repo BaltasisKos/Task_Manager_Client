@@ -8,6 +8,6 @@ export const apiSlice = createApi({
     baseUrl: API_URL,
     credentials: "include", // include cookies for auth
   }),
-  tagTypes: ["User", "Task"], // optional, useful for cache invalidation
+  tagTypes: ["User", "Task", "Teams"], // optional, useful for cache invalidation
   endpoints: (builder) => ({}),
 });

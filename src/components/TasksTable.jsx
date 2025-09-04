@@ -25,9 +25,12 @@ import {
   useSoftDeleteTaskMutation,
 } from "../redux/slices/api/taskApiSlice";
 
+import { useGetTeamsQuery } from "../redux/slices/api/teamApiSlice";
+
 const TasksTable = () => {
   // --- Queries & Mutations ---
   const { data: tasks = [], isLoading, isError } = useGetAllTaskQuery();
+  const { data: teamsData = [] } = useGetTeamsQuery(); // fetch teams
   const [createTask] = useCreateTaskMutation();
   const [updateTask] = useUpdateTaskMutation();
   const [softDeleteTask] = useSoftDeleteTaskMutation();
@@ -45,6 +48,7 @@ const TasksTable = () => {
   const [createdAt, setCreatedAt] = useState(new Date());
   const [notes, setNotes] = useState("");
   const [titleError, setTitleError] = useState("");
+  const [teamMembers, setTeamMembers] = useState([]);
 
   const [editId, setEditId] = useState(null);
   const [editTitle, setEditTitle] = useState("");
@@ -102,6 +106,7 @@ const TasksTable = () => {
     setCreatedAt(new Date());
     setNotes("");
     setTitleError("");
+    setTeamMembers([]);
   };
 
   const handleAddTask = async () => {
@@ -110,6 +115,7 @@ const TasksTable = () => {
       await createTask({
         name: title,
         team,
+        members: teamMembers, // automatically assign team members
         status,
         createdAt: createdAt.toISOString(),
         dueDate: dueDate ? dueDate.toISOString() : null,
@@ -122,6 +128,12 @@ const TasksTable = () => {
       console.error(err);
       toast.error("Failed to add task");
     }
+  };
+
+  const handleTeamChange = (teamId) => {
+    setTeam(teamId);
+    const selectedTeam = teamsData.find((t) => t._id === teamId);
+    setTeamMembers(selectedTeam?.members || []);
   };
 
   const startEdit = (task) => {
@@ -181,18 +193,16 @@ const TasksTable = () => {
   };
 
   const confirmDeleteTask = async () => {
-  if (!deleteConfirmId) return;
-  console.log("Deleting task ID:", deleteConfirmId); // 🔍
-  try {
-    await softDeleteTask(deleteConfirmId).unwrap();
-    toast.success("Task moved to archive");
-    setDeleteConfirmId(null);
-  } catch (err) {
-    console.error(err); // shows 404 here
-    toast.error("Failed to delete task");
-  }
-};
-
+    if (!deleteConfirmId) return;
+    try {
+      await softDeleteTask(deleteConfirmId).unwrap();
+      toast.success("Task moved to archive");
+      setDeleteConfirmId(null);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to delete task");
+    }
+  };
 
   if (isLoading) return <p className="text-white">Loading tasks...</p>;
   if (isError) return <p className="text-red-500">Error loading tasks</p>;
@@ -206,7 +216,7 @@ const TasksTable = () => {
         <div className="flex-grow border-t border-white"></div>
       </div>
 
-      {/* Add Button */}
+      {/* Add Task Button */}
       <div className="mb-6 flex justify-start">
         <button
           onClick={() => setShowAddModal(true)}
@@ -214,179 +224,6 @@ const TasksTable = () => {
         >
           <Plus size={18} /> Add Task
         </button>
-      </div>
-
-      {/* Stats Boxes */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        {boxes.map((box) => (
-          <button
-            key={box.key}
-            onClick={() => setSelectedFilter(box.key)}
-            className={`p-4 flex items-center justify-between shadow ${box.bg} w-full`}
-          >
-            <div className="text-3xl">{box.icon}</div>
-            <div className="flex-1 text-left pl-4">
-              <div className="text-gray-700 text-sm">{box.label}</div>
-            </div>
-            <div className="text-xl">
-              <Plus size={24} className="text-blue-500" />
-            </div>
-          </button>
-        ))}
-      </div>
-
-      {/* Task Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pt-6">
-        {filteredTasks.map((task) => (
-          <div key={task._id} className="relative rounded shadow-2xl p-4 bg-white">
-            {/* Dropdown */}
-            <div className="absolute top-2 right-2">
-              <button
-                onClick={() =>
-                  setDropdownOpenId(dropdownOpenId === task._id ? null : task._id)
-                } className="cursor-pointer"
-              >
-                <MoreVertical size={20} />
-              </button>
-              {dropdownOpenId === task._id && (
-                <div className="absolute right-0 mt-2 w-32 bg-white border rounded shadow z-10">
-                  <button
-                    onClick={() => {
-                      setDropdownOpenId(null);
-                      startEdit(task);
-                    }}
-                    className="block w-full text-left px-4 py-2 hover:bg-gray-300 cursor-pointer"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => {
-                      setDropdownOpenId(null);
-                      setDeleteConfirmId(task._id);
-                    }}
-                    className="block w-full text-left px-4 py-2 text-red-600 hover:bg-red-500 hover:text-white cursor-pointer"
-                  >
-                    Delete
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Task Info */}
-            <table className="table-fixed w-full border-collapse">
-              <tbody>
-                <tr className="border-b">
-                  <td colSpan={2} className="text-center text-xl font-semibold py-6">
-                    {editId === task._id ? (
-                      <>
-                        <input
-                          className="border p-1 w-full rounded"
-                          value={editTitle}
-                          onChange={(e) => setEditTitle(e.target.value)}
-                        />
-                        {titleError && <p className="text-sm text-red-500">{titleError}</p>}
-                      </>
-                    ) : (
-                      task.name
-                    )}
-                  </td>
-                </tr>
-                <tr className="border-b">
-                  <th className="text-left p-2">Team:</th>
-                  <td className="p-2">
-                    {editId === task._id ? (
-                      <input
-                        className="border p-1 w-full rounded"
-                        value={editTeam}
-                        onChange={(e) => setEditTeam(e.target.value)}
-                      />
-                    ) : (
-                      task.team || "—"
-                    )}
-                  </td>
-                </tr>
-                <tr className="border-b">
-                  <th className="text-left p-2">Status:</th>
-                  <td className="p-2 capitalize">
-                    {editId === task._id ? (
-                      <select
-                        className="border p-1 w-full rounded"
-                        value={editStatus}
-                        onChange={(e) => setEditStatus(e.target.value)}
-                      >
-                        <option value="todo">To Do</option>
-                        <option value="inProgress">In Progress</option>
-                        <option value="completed">Completed</option>
-                      </select>
-                    ) : (
-                      task.status
-                    )}
-                  </td>
-                </tr>
-                <tr className="border-b">
-                  <th className="text-left p-2">Due Date:</th>
-                  <td className="p-2">
-                    {editId === task._id ? (
-                      <DatePicker
-                        selected={editDueDate}
-                        onChange={setEditDueDate}
-                        className="border p-1 w-full rounded"
-                        dateFormat="dd/MM/yyyy"
-                        isClearable
-                      />
-                    ) : task.dueDate ? (
-                      new Date(task.dueDate).toLocaleDateString()
-                    ) : (
-                      "—"
-                    )}
-                  </td>
-                </tr>
-                <tr>
-                  <th className="text-left p-2">Notes:</th>
-                  <td className="p-2 whitespace-pre-wrap break-words">
-                    {editId === task._id ? (
-                      <textarea
-                        className="border p-1 w-full rounded resize-none"
-                        rows={2}
-                        value={editNotes}
-                        onChange={(e) => setEditNotes(e.target.value)}
-                      />
-                    ) : (
-                      task.notes || ""
-                    )}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-
-            {/* Actions */}
-            <div className="flex justify-center mt-4 gap-2">
-              {editId === task._id ? (
-                <>
-                  <button
-                    onClick={saveEdit}
-                    className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 flex items-center gap-1 cursor-pointer"
-                  >
-                    <Save size={16} /> Save
-                  </button>
-                  <button
-                    onClick={cancelEdit}
-                    className="bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600 flex items-center gap-1 cursor-pointer"
-                  >
-                    <XCircle size={16} /> Cancel
-                  </button>
-                </>
-              ) : (
-                <button
-                  onClick={() => completeTask(task)}
-                  className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 flex items-center gap-1 cursor-pointer"
-                >
-                  <Check size={16} /> Complete
-                </button>
-              )}
-            </div>
-          </div>
-        ))}
       </div>
 
       {/* Add Task Modal */}
@@ -414,35 +251,40 @@ const TasksTable = () => {
               variant="filled"
               fullWidth
               margin="dense"
-              sx={{ backgroundColor: "white", "& .MuiFilledInput-root": { backgroundColor: "white" } }}
             />
             {titleError && <p className="text-sm text-red-500 mb-2">{titleError}</p>}
 
-            <div className="flex flex-col sm:flex-row gap-4 mb-3">
-              <TextField
-                label="Team"
-                value={team}
-                onChange={(e) => setTeam(e.target.value)}
-                variant="filled"
-                fullWidth
-                sx={{ backgroundColor: "white", "& .MuiFilledInput-root": { backgroundColor: "white" } }}
-              />
-              <TextField
-                select
-                label="Status"
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-                fullWidth
-                variant="filled"
-                sx={{ backgroundColor: "white", "& .MuiInputBase-root": { backgroundColor: "white" } }}
-              >
-                <MenuItem value="todo">To Do</MenuItem>
-                <MenuItem value="inProgress">In Progress</MenuItem>
-              </TextField>
-            </div>
+            <TextField
+              select
+              label="Team"
+              value={team}
+              onChange={(e) => handleTeamChange(e.target.value)}
+              fullWidth
+              variant="filled"
+              margin="dense"
+            >
+              {teamsData.map((t) => (
+                <MenuItem key={t._id} value={t._id}>
+                  {t.name}
+                </MenuItem>
+              ))}
+            </TextField>
 
-            <div className="flex flex-col sm:flex-row gap-4 mb-3">
-              <div className="w-full">
+            <TextField
+              select
+              label="Status"
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              fullWidth
+              variant="filled"
+              margin="dense"
+            >
+              <MenuItem value="todo">To Do</MenuItem>
+              <MenuItem value="inProgress">In Progress</MenuItem>
+            </TextField>
+
+            <div className="flex gap-4 mt-3 mb-3">
+              <div className="flex-1">
                 <label className="text-sm font-medium mb-1 flex items-center gap-1">
                   <CalendarDays className="w-4 h-4 text-gray-500" /> Created Date
                 </label>
@@ -454,7 +296,7 @@ const TasksTable = () => {
                   isClearable
                 />
               </div>
-              <div className="w-full">
+              <div className="flex-1">
                 <label className="text-sm font-medium mb-1 flex items-center gap-1">
                   <CalendarDays className="w-4 h-4 text-gray-500" /> Due Date
                 </label>
@@ -476,7 +318,7 @@ const TasksTable = () => {
               onChange={(e) => setNotes(e.target.value)}
               variant="filled"
               fullWidth
-              sx={{ backgroundColor: "white", "& .MuiFilledInput-root": { backgroundColor: "white", paddingTop: "26px" } }}
+              margin="dense"
             />
 
             <div className="flex justify-center mt-4">
@@ -485,30 +327,6 @@ const TasksTable = () => {
                 className="bg-blue-600 text-white px-16 py-2 rounded-4xl hover:bg-blue-700"
               >
                 Add
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Delete Modal */}
-      {deleteConfirmId && (
-        <div className="fixed inset-0 bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-xl w-full max-w-sm shadow-xl">
-            <h2 className="text-lg font-semibold mb-4">Confirm Deletion</h2>
-            <p className="mb-6">Are you sure you want to move this task to the archive?</p>
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={() => setDeleteConfirmId(null)}
-                className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmDeleteTask}
-                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-              >
-                Delete
               </button>
             </div>
           </div>
