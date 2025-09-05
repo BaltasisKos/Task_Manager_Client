@@ -4,6 +4,12 @@ import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { useLogoutMutation, useUpdateUserMutation } from "../redux/slices/api/userApiSlice";
 import { logout, setCredentials } from "../redux/slices/authSlice";
+import TextField from "@mui/material/TextField";
+import IconButton from "@mui/material/IconButton";
+import InputAdornment from "@mui/material/InputAdornment";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+
 
 // Avatar component showing initials
 const InitialsAvatar = ({ fullName }) => {
@@ -30,10 +36,13 @@ const ProfileModal = ({ user, onClose, onSave }) => {
   const [name, setName] = useState(user.name);
   const [email, setEmail] = useState(user.email);
   const [password, setPassword] = useState("");
+  const [title, setTitle] = useState(user.title || ""); 
+
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSave = async () => {
     try {
-      const payload = { name, email };
+      const payload = { name, email, title };
       if (password) payload.password = password; // optional password update
 
       const updatedUser = await updateUser(payload).unwrap(); // save to backend
@@ -50,33 +59,59 @@ const ProfileModal = ({ user, onClose, onSave }) => {
     <div className="fixed inset-0 bg-opacity-30 flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded-lg w-80 shadow-lg relative">
         <h2 className="text-lg font-semibold mb-4">Edit Profile</h2>
-        <input
-          type="text"
-          className="w-full p-2 border mb-3 rounded"
+        <TextField
+          label="Name"
+          variant="outlined"
+          fullWidth
+          margin="dense"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
-        <input
+
+        <TextField
+          label="Email"
           type="email"
-          className="w-full p-2 border mb-3 rounded"
+          variant="outlined"
+          fullWidth
+          margin="dense"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
-        <input
-          type="password"
-          placeholder="New Password"
-          className="w-full p-2 border mb-3 rounded"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+
+        <TextField
+  label="New Password"
+  type={showPassword ? "text" : "password"}
+  variant="outlined"
+  fullWidth
+  margin="dense"
+  value={password} // starts empty
+  placeholder="Leave blank to keep current password"
+  onChange={(e) => setPassword(e.target.value)}
+  InputProps={{
+    endAdornment: (
+      <InputAdornment position="end">
+        <IconButton
+          onClick={() => setShowPassword((prev) => !prev)}
+          edge="end"
+        >
+          {showPassword ? <VisibilityOff /> : <Visibility />}
+        </IconButton>
+      </InputAdornment>
+    ),
+  }}
+/>
+
+
+        <TextField
+          label="Title"
+          variant="outlined"
+          fullWidth
+          margin="dense"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
         />
-        <input
-          type="title"
-          placeholder="Title"
-          className="w-full p-2 border mb-3 rounded"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <div className="flex justify-end gap-2">
+
+        <div className="flex justify-end gap-2 mt-3">
           <button
             onClick={onClose}
             className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 cursor-pointer"
@@ -89,11 +124,11 @@ const ProfileModal = ({ user, onClose, onSave }) => {
           >
             Save
           </button>
-        </div>
-      </div>
-    </div>
-  );
-};
+                </div>
+              </div>
+            </div>
+          );
+        };
 
 // Main ProfileDropdown component
 const ProfileDropdown = () => {

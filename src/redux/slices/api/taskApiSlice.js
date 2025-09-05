@@ -11,7 +11,7 @@ export const taskApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      invalidatesTags: [{ type: "Task", id: "LIST" }],
+      invalidatesTags: [{ type: "Tasks", id: "LIST" }],
     }),
 
     // READ ALL TASKS
@@ -23,7 +23,7 @@ export const taskApiSlice = apiSlice.injectEndpoints({
       providesTags: (result) =>
         result
           ? [
-              ...result.map(({ _id }) => ({ type: "Task", id: _id })),
+              ...result.map(({ _id }) => ({ type: "Tasks", id: _id })),
               { type: "Task", id: "LIST" },
             ]
           : [{ type: "Task", id: "LIST" }],

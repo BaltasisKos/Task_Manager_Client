@@ -4,7 +4,6 @@ import {
   Check,
   Save,
   XCircle,
-  MoreVertical,
   ClipboardList,
   Clock,
   ListTodo,
@@ -38,7 +37,6 @@ const TasksTable = () => {
   // --- State ---
   const [showAddModal, setShowAddModal] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
-  const [dropdownOpenId, setDropdownOpenId] = useState(null);
   const [selectedFilter, setSelectedFilter] = useState("allTasks");
 
   const [title, setTitle] = useState("");
@@ -114,7 +112,7 @@ const TasksTable = () => {
     try {
       await createTask({
         name: title,
-        team,
+        teamId: team,
         members: teamMembers, // automatically assign team members
         status,
         createdAt: createdAt.toISOString(),
@@ -226,6 +224,151 @@ const TasksTable = () => {
         </button>
       </div>
 
+      {/* Task Table */}
+      {filteredTasks.length === 0 ? (
+        <p className="text-gray-400">No tasks found.</p>
+      ) : (
+        <div className="bg-gray-800 rounded-lg shadow-md overflow-hidden">
+          <table className="w-full text-left text-white">
+            <thead className="bg-gray-700">
+              <tr>
+                <th className="p-3">Title</th>
+                <th className="p-3">Team</th>
+                <th className="p-3">Status</th>
+                <th className="p-3">Due Date</th>
+                <th className="p-3">Notes</th>
+                <th className="p-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredTasks.map((task) => (
+                <tr
+                  key={task._id}
+                  className="border-b border-gray-600 hover:bg-gray-700"
+                >
+                  <td className="p-3">
+                    {editId === task._id ? (
+                      <TextField
+                        value={editTitle}
+                        onChange={(e) => setEditTitle(e.target.value)}
+                        size="small"
+                        fullWidth
+                      />
+                    ) : (
+                      task.name
+                    )}
+                  </td>
+                  <td className="p-3">
+                    {editId === task._id ? (
+                      <TextField
+                        select
+                        value={editTeam}
+                        onChange={(e) => setEditTeam(e.target.value)}
+                        size="small"
+                        fullWidth
+                      >
+                        {teamsData.map((t) => (
+                          <MenuItem key={t._id} value={t._id}>
+                            {t.name}
+                          </MenuItem>
+                        ))}
+                      </TextField>
+                    ) : (
+                      teamsData.find((t) => t._id === task.team)?.name || "-"
+                    )}
+                  </td>
+                  <td className="p-3 capitalize">
+                    {editId === task._id ? (
+                      <TextField
+                        select
+                        value={editStatus}
+                        onChange={(e) => setEditStatus(e.target.value)}
+                        size="small"
+                        fullWidth
+                      >
+                        <MenuItem value="todo">To Do</MenuItem>
+                        <MenuItem value="inProgress">In Progress</MenuItem>
+                        <MenuItem value="completed">Completed</MenuItem>
+                      </TextField>
+                    ) : (
+                      task.status
+                    )}
+                  </td>
+                  <td className="p-3">
+                    {editId === task._id ? (
+                      <DatePicker
+                        selected={editDueDate}
+                        onChange={setEditDueDate}
+                        className="bg-gray-700 text-white p-2 rounded w-full"
+                        dateFormat="dd/MM/yyyy"
+                        isClearable
+                      />
+                    ) : task.dueDate ? (
+                      new Date(task.dueDate).toLocaleDateString()
+                    ) : (
+                      "-"
+                    )}
+                  </td>
+                  <td className="p-3">
+                    {editId === task._id ? (
+                      <TextField
+                        value={editNotes}
+                        onChange={(e) => setEditNotes(e.target.value)}
+                        size="small"
+                        fullWidth
+                      />
+                    ) : (
+                      task.notes || "-"
+                    )}
+                  </td>
+                  <td className="p-3 text-right flex gap-2 justify-end">
+                    {editId === task._id ? (
+                      <>
+                        <button
+                          onClick={saveEdit}
+                          className="text-green-400 hover:text-green-600"
+                        >
+                          <Save size={18} />
+                        </button>
+                        <button
+                          onClick={cancelEdit}
+                          className="text-red-400 hover:text-red-600"
+                        >
+                          <XCircle size={18} />
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        {task.status !== "completed" && (
+                          <button
+                            onClick={() => completeTask(task)}
+                            className="text-blue-400 hover:text-blue-600"
+                          >
+                            <Check size={18} />
+                          </button>
+                        )}
+                        <button
+                          onClick={() => startEdit(task)}
+                          className="text-yellow-400 hover:text-yellow-600"
+                        >
+                          <ClipboardList size={18} />
+                        </button>
+                        <button
+                          onClick={() => setDeleteConfirmId(task._id)}
+                          className="text-red-400 hover:text-red-600"
+                        >
+                          <XCircle size={18} />
+                        </button>
+                      </>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
       {/* Add Task Modal */}
       {showAddModal && (
         <div
@@ -252,7 +395,9 @@ const TasksTable = () => {
               fullWidth
               margin="dense"
             />
-            {titleError && <p className="text-sm text-red-500 mb-2">{titleError}</p>}
+            {titleError && (
+              <p className="text-sm text-red-500 mb-2">{titleError}</p>
+            )}
 
             <TextField
               select
@@ -327,6 +472,31 @@ const TasksTable = () => {
                 className="bg-blue-600 text-white px-16 py-2 rounded-4xl hover:bg-blue-700"
               >
                 Add
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmId && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-sm">
+            <p className="text-gray-800 mb-4">
+              Are you sure you want to delete this task?
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setDeleteConfirmId(null)}
+                className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDeleteTask}
+                className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700"
+              >
+                Delete
               </button>
             </div>
           </div>
