@@ -17,6 +17,7 @@ import {
   useCreateTeamMutation,
   useUpdateTeamMutation,
   useDeleteTeamMutation,
+  useSoftDeleteTeamMutation,
 } from "../redux/slices/api/teamApiSlice";
 
 // Tab Panel Component
@@ -36,7 +37,9 @@ const TeamsTable = () => {
   const [userAction] = useUserActionMutation();
 
   // Teams
-  const { data: teamsData = [], refetch: refetchTeams } = useGetTeamsQuery();
+  const { data: teamsData = [], refetch:refetchTeams } = useGetTeamsQuery(undefined, {
+  refetchOnMountOrArgChange: true, // ⚡ automatically refetch when tag invalidates
+});
   const [createTeam] = useCreateTeamMutation();
   const [updateTeam] = useUpdateTeamMutation();
   const [deleteTeam] = useDeleteTeamMutation();
@@ -52,6 +55,8 @@ const TeamsTable = () => {
 
   // Delete confirmation
   const [deleteConfirm, setDeleteConfirm] = useState({ type: "", id: null });
+const [softDeleteTeam] = useSoftDeleteTeamMutation();
+
 
   // Handlers
   const handleTabChange = (e, newVal) => setTabIndex(newVal);
@@ -130,6 +135,7 @@ const TeamsTable = () => {
     setTeamForm({
       name: team.name,
       members: team.members?.map(member => member._id) || [],
+      description: team.description || "",
     });
     setShowTeamModal(true);
   };
@@ -150,14 +156,15 @@ const TeamsTable = () => {
   };
 
   const handleDeleteTeam = async (id) => {
-    try {
-      await deleteTeam(id).unwrap();
-      setDeleteConfirm({ type: "", id: null });
-      refetchTeams();
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  try {
+    await softDeleteTeam( id ).unwrap(); // send archive request
+    setDeleteConfirm({ type: "", id: null });
+    refetchTeams();
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 
   return (
     <div className="w-full py-5 px-4">
@@ -183,10 +190,10 @@ const TeamsTable = () => {
             <Plus size={18} /> Add User
           </button>
         </div>
-        <div className="overflow-x-auto shadow-2xl rounded">
+        <div className="overflow-x-auto shadow-2xl rounded-lg">
           <table className="min-w-full bg-gray-100">
             <thead>
-              <tr className="bg-gradient-to-r from-cyan-500 to-cyan-400">
+              <tr className="bg-blue-700">
                 <th className="p-3 border-b text-center">Full Name</th>
                 <th className="p-3 border-b text-center">Title</th>
                 <th className="p-3 border-b text-center">Email</th>
@@ -202,7 +209,7 @@ const TeamsTable = () => {
                 </tr>
               ) : (
                 usersData.map((user) => (
-                  <tr key={user._id} className="text-center">
+                  <tr key={user._id} className="text-center border-b border-gray-600 hover:bg-blue-400">
                     <td className="p-3">{user.name}</td>
                     <td className="p-3">{user.title || "-"}</td>
                     <td className="p-3">{user.email}</td>
@@ -231,10 +238,10 @@ const TeamsTable = () => {
     </button>
   </div>
 
-  <div className="overflow-x-auto shadow-2xl rounded">
+  <div className="overflow-x-auto shadow-2xl rounded-lg">
     <table className="min-w-full bg-gray-100">
       <thead>
-        <tr className="bg-gradient-to-r from-cyan-500 to-cyan-400">
+        <tr className="bg-blue-700">
           <th className="p-3 border-b text-center">Team Name</th>
           <th className="p-3 border-b text-center">Description</th>
           <th className="p-3 border-b text-center">Members</th>
@@ -250,7 +257,7 @@ const TeamsTable = () => {
           </tr>
         ) : (
           teamsData.map((team) => (
-            <tr key={team._id} className="text-center">
+            <tr key={team._id} className="text-center border-b border-gray-600 hover:bg-blue-400">
               <td className="p-3">{team.name}</td>
               <td className="p-3">{team.description || "-"}</td>
               <td className="p-3">
@@ -298,20 +305,21 @@ const TeamsTable = () => {
 
       {/* User Modal */}
       {showUserModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm">
           <div className="bg-white rounded-lg p-6 w-[400px] relative">
             <button onClick={() => setShowUserModal(false)} className="absolute top-2 right-2 text-gray-500 cursor-pointer">
               <FontAwesomeIcon icon={faXmark} />
             </button>
             <h3 className="text-lg font-semibold mb-6">{editingUser ? "Edit User" : "Add User"}</h3>
             <div className="space-y-3">
-              <TextField fullWidth label="Full Name" name="name" value={userForm.name} onChange={handleUserFormChange} />
-              <TextField fullWidth label="Email" name="email" value={userForm.email} onChange={handleUserFormChange} />
-              <TextField select fullWidth label="Role" name="role" value={userForm.role} onChange={handleUserFormChange}>
+              <div>
+              <TextField fullWidth label="Full Name" name="name" value={userForm.name} onChange={handleUserFormChange} /></div>
+              <div><TextField fullWidth label="Email" name="email" value={userForm.email} onChange={handleUserFormChange} /></div>
+              <div><TextField select fullWidth label="Role" name="role" value={userForm.role} onChange={handleUserFormChange}>
                 <MenuItem value="admin">Admin</MenuItem>
                 <MenuItem value="user">User</MenuItem>
-              </TextField>
-              <TextField fullWidth label="Title" name="title" value={userForm.title} onChange={handleUserFormChange} />
+              </TextField></div>
+              <div><TextField fullWidth label="Title" name="title" value={userForm.title} onChange={handleUserFormChange} /></div>
               <label className="flex items-center gap-2">
                 <input type="checkbox" name="isActive" checked={userForm.isActive} onChange={handleUserFormChange} />
                 Active
@@ -327,7 +335,7 @@ const TeamsTable = () => {
 
       {/* Team Modal */}
       {showTeamModal && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div className="fixed inset-0 backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-50">
     <div className="bg-white rounded-lg p-6 w-[400px] relative">
       <button
         onClick={() => setShowTeamModal(false)}
@@ -342,13 +350,13 @@ const TeamsTable = () => {
 
       <div className="space-y-3">
         {/* Team Name */}
-        <TextField
+        <div><TextField
           fullWidth
           label="Team Name"
           name="name"
           value={teamForm.name}
           onChange={handleTeamFormChange}
-        />
+        /></div>
 
         {/* Members Autocomplete */}
         <Autocomplete
@@ -405,18 +413,18 @@ const TeamsTable = () => {
 
       {/* Delete Confirmation */}
       {deleteConfirm.id && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full">
             <h3 className="text-lg font-semibold mb-4">Confirm Deletion</h3>
             <p className="mb-6">Are you sure you want to delete this {deleteConfirm.type}?</p>
             <div className="flex justify-end gap-4">
-              <button onClick={() => setDeleteConfirm({ type: "", id: null })} className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400">Cancel</button>
+              <button onClick={() => setDeleteConfirm({ type: "", id: null })} className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 cursor-pointer">Cancel</button>
               <button
                 onClick={() => {
                   if (deleteConfirm.type === "user") handleDeleteUser(deleteConfirm.id);
                   else if (deleteConfirm.type === "team") handleDeleteTeam(deleteConfirm.id);
                 }}
-                className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700"
+                className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700 cursor-pointer"
               >
                 Delete
               </button>

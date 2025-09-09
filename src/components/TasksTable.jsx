@@ -28,7 +28,10 @@ import { useGetTeamsQuery } from "../redux/slices/api/teamApiSlice";
 
 const TasksTable = () => {
   // --- Queries & Mutations ---
-  const { data: tasks = [], isLoading, isError } = useGetAllTaskQuery();
+  const { data: tasks = [], isLoading, isError, refetch: refetchTasks } = useGetAllTaskQuery(undefined, {
+  refetchOnMountOrArgChange: true,
+});
+
   const { data: teamsData = [] } = useGetTeamsQuery(); // fetch teams
   const [createTask] = useCreateTaskMutation();
   const [updateTask] = useUpdateTaskMutation();
@@ -38,6 +41,11 @@ const TasksTable = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [selectedFilter, setSelectedFilter] = useState("allTasks");
+
+  // Modals
+    const [showTaskModal, setShowTaskModal] = useState(false);
+    const [editingTask, setEditingTask] = useState(null);
+    const [taskForm, setTaskForm] = useState({ title: "", team: "", status: "", dueDate: "", notes: "" });
 
   const [title, setTitle] = useState("");
   const [team, setTeam] = useState("");
@@ -89,11 +97,14 @@ const TasksTable = () => {
   ];
 
   // --- Filtered Tasks ---
-  const filteredTasks = tasks.filter((task) =>
-    selectedFilter === "allTasks"
-      ? task.status !== "deleted"
-      : task.status === selectedFilter && task.status !== "deleted"
-  );
+const filteredTasks = tasks.filter((task) => {
+  if (selectedFilter === "allTasks") {
+    return task.status !== "deleted" && task.status !== "completed";
+  } else {
+    return task.status === selectedFilter && task.status !== "deleted";
+  }
+});
+
 
   // --- Handlers ---
   const resetAddForm = () => {
@@ -122,6 +133,7 @@ const TasksTable = () => {
       toast.success("Task added");
       resetAddForm();
       setShowAddModal(false);
+      refetchTasks();
     } catch (err) {
       console.error(err);
       toast.error("Failed to add task");
@@ -134,15 +146,17 @@ const TasksTable = () => {
     setTeamMembers(selectedTeam?.members || []);
   };
 
-  const startEdit = (task) => {
-    setEditId(task._id);
-    setEditTitle(task.name);
-    setEditTeam(task.team || "");
-    setEditStatus(task.status);
-    setEditDueDate(task.dueDate ? new Date(task.dueDate) : null);
-    setEditNotes(task.notes || "");
-    setTitleError("");
-  };
+  const openEditTaskModal = (task) => {
+  setEditingTask(task);
+  setTaskForm({
+    title: task.name,
+    team: task.team || "",
+    status: task.status,
+    dueDate: task.dueDate ? new Date(task.dueDate) : null,
+    notes: task.notes || "",
+  });
+  setShowTaskModal(true);
+};
 
   const cancelEdit = () => {
     setEditId(null);
@@ -167,6 +181,7 @@ const TasksTable = () => {
       }).unwrap();
       toast.success("Task updated");
       cancelEdit();
+      refetchTasks();
     } catch (err) {
       console.error(err);
       toast.error("Failed to update task");
@@ -196,6 +211,7 @@ const TasksTable = () => {
       await softDeleteTask(deleteConfirmId).unwrap();
       toast.success("Task moved to archive");
       setDeleteConfirmId(null);
+      refetchTasks();
     } catch (err) {
       console.error(err);
       toast.error("Failed to delete task");
@@ -228,25 +244,25 @@ const TasksTable = () => {
       {filteredTasks.length === 0 ? (
         <p className="text-gray-400">No tasks found.</p>
       ) : (
-        <div className="bg-gray-800 rounded-lg shadow-md overflow-hidden">
-          <table className="w-full text-left text-white">
-            <thead className="bg-gray-700">
+        <div className="bg-white rounded-lg shadow-md overflow-hidden">
+          <table className="w-full text-left text-w">
+            <thead className="bg-blue-700">
               <tr>
-                <th className="p-3">Title</th>
-                <th className="p-3">Team</th>
-                <th className="p-3">Status</th>
-                <th className="p-3">Due Date</th>
-                <th className="p-3">Notes</th>
-                <th className="p-3 text-right">Actions</th>
+                <th className="p-3 text-center">Title</th>
+                <th className="p-3 text-center">Team</th>
+                <th className="p-3 text-center">Status</th>
+                <th className="p-3 text-center">Due Date</th>
+                <th className="p-3 text-center">Notes</th>
+                <th className="p-3 text-center">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredTasks.map((task) => (
                 <tr
                   key={task._id}
-                  className="border-b border-gray-600 hover:bg-gray-700"
+                  className="border-b border-gray-600 hover:bg-blue-400"
                 >
-                  <td className="p-3">
+                  <td className="p-3 text-center">
                     {editId === task._id ? (
                       <TextField
                         value={editTitle}
@@ -258,7 +274,7 @@ const TasksTable = () => {
                       task.name
                     )}
                   </td>
-                  <td className="p-3">
+                  <td className="p-3 text-center">
                     {editId === task._id ? (
                       <TextField
                         select
@@ -277,7 +293,7 @@ const TasksTable = () => {
                       teamsData.find((t) => t._id === task.team)?.name || "-"
                     )}
                   </td>
-                  <td className="p-3 capitalize">
+                  <td className="p-3 capitalize text-center">
                     {editId === task._id ? (
                       <TextField
                         select
@@ -294,7 +310,7 @@ const TasksTable = () => {
                       task.status
                     )}
                   </td>
-                  <td className="p-3">
+                  <td className="p-3 text-center">
                     {editId === task._id ? (
                       <DatePicker
                         selected={editDueDate}
@@ -304,12 +320,12 @@ const TasksTable = () => {
                         isClearable
                       />
                     ) : task.dueDate ? (
-                      new Date(task.dueDate).toLocaleDateString()
+                      new Date(task.dueDate).toLocaleDateString("en-GB")
                     ) : (
                       "-"
                     )}
                   </td>
-                  <td className="p-3">
+                  <td className="p-3 whitespace-normal break-words max-w-xs text-center">
                     {editId === task._id ? (
                       <TextField
                         value={editNotes}
@@ -321,20 +337,24 @@ const TasksTable = () => {
                       task.notes || "-"
                     )}
                   </td>
-                  <td className="p-3 text-right flex gap-2 justify-end">
+                    <td className="p-3 ">
+                  <div className="flex justify-end items-center space-x-2">
                     {editId === task._id ? (
                       <>
                         <button
                           onClick={saveEdit}
-                          className="text-green-400 hover:text-green-600"
+                          className="flex items-center gap-1 bg-green-400 text-white px-3 py-1 rounded cursor-pointer"
                         >
                           <Save size={18} />
+                          Save
                         </button>
+
                         <button
                           onClick={cancelEdit}
-                          className="text-red-400 hover:text-red-600"
+                          className="flex items-center gap-1 bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 cursor-pointer"
                         >
                           <XCircle size={18} />
+                          Cancel
                         </button>
                       </>
                     ) : (
@@ -342,26 +362,33 @@ const TasksTable = () => {
                         {task.status !== "completed" && (
                           <button
                             onClick={() => completeTask(task)}
-                            className="text-blue-400 hover:text-blue-600"
+                            className="flex items-center gap-1 bg-green-400 text-white px-3 py-1 rounded cursor-pointer"
                           >
                             <Check size={18} />
+                            Complete
                           </button>
                         )}
+
                         <button
-                          onClick={() => startEdit(task)}
-                          className="text-yellow-400 hover:text-yellow-600"
+                          onClick={() => openEditTaskModal(task)}
+                          className="flex items-center gap-1 bg-gray-400 text-white px-3 py-1 rounded hover:bg-yellow-500 cursor-pointer"
                         >
                           <ClipboardList size={18} />
+                          Edit
                         </button>
+
                         <button
                           onClick={() => setDeleteConfirmId(task._id)}
-                          className="text-red-400 hover:text-red-600"
+                          className="flex items-center gap-1 bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 cursor-pointer"
                         >
                           <XCircle size={18} />
+                          Delete
                         </button>
                       </>
                     )}
-                  </td>
+                  </div>
+                </td>
+
                 </tr>
               ))}
             </tbody>
@@ -372,7 +399,7 @@ const TasksTable = () => {
       {/* Add Task Modal */}
       {showAddModal && (
         <div
-          className="fixed inset-0 bg-opacity-40 flex items-center justify-center z-50"
+          className="fixed inset-0 backdrop-blur-sm bg-opacity-40 flex items-center justify-center z-50"
           onClick={() => setShowAddModal(false)}
         >
           <div
@@ -383,7 +410,7 @@ const TasksTable = () => {
               onClick={() => setShowAddModal(false)}
               className="absolute top-4 right-4 text-black hover:text-cyan-500"
             >
-              <FontAwesomeIcon icon={faXmark} />
+              <FontAwesomeIcon icon={faXmark} className="cursor-pointer" />
             </button>
             <h3 className="text-lg font-semibold text-center mb-4">Add Task</h3>
 
@@ -469,7 +496,7 @@ const TasksTable = () => {
             <div className="flex justify-center mt-4">
               <button
                 onClick={handleAddTask}
-                className="bg-blue-600 text-white px-16 py-2 rounded-4xl hover:bg-blue-700"
+                className="bg-blue-600 text-white px-16 py-2 rounded-4xl hover:bg-blue-700 cursor-pointer"
               >
                 Add
               </button>
@@ -478,9 +505,141 @@ const TasksTable = () => {
         </div>
       )}
 
+      {/* Edit Task Modal */}
+{showTaskModal && (
+  <div
+    className="fixed inset-0 backdrop-blur-sm bg-opacity-40 flex items-center justify-center z-50"
+    onClick={() => setShowTaskModal(false)}
+  >
+    <div
+      className="relative bg-white rounded p-6 w-full max-w-md shadow-xl"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <button
+        onClick={() => setShowTaskModal(false)}
+        className="absolute top-4 right-4 text-black hover:text-cyan-500"
+      >
+        <FontAwesomeIcon icon={faXmark} className="cursor-pointer" />
+      </button>
+      <h3 className="text-lg font-semibold text-center mb-4">
+        Edit Task
+      </h3>
+
+      <TextField
+        label="Title"
+        value={taskForm.title}
+        onChange={(e) =>
+          setTaskForm((prev) => ({ ...prev, title: e.target.value }))
+        }
+        variant="filled"
+        fullWidth
+        margin="dense"
+      />
+
+      <TextField
+        select
+        label="Team"
+        value={taskForm.team}
+        onChange={(e) =>
+          setTaskForm((prev) => ({ ...prev, team: e.target.value }))
+        }
+        fullWidth
+        variant="filled"
+        margin="dense"
+      >
+        {teamsData.map((t) => (
+          <MenuItem key={t._id} value={t._id}>
+            {t.name}
+          </MenuItem>
+        ))}
+      </TextField>
+
+      <TextField
+        select
+        label="Status"
+        value={taskForm.status}
+        onChange={(e) =>
+          setTaskForm((prev) => ({ ...prev, status: e.target.value }))
+        }
+        fullWidth
+        variant="filled"
+        margin="dense"
+      >
+        <MenuItem value="todo">To Do</MenuItem>
+        <MenuItem value="inProgress">In Progress</MenuItem>
+        <MenuItem value="completed">Completed</MenuItem>
+      </TextField>
+
+      <div className="mt-3 mb-3">
+        <label className="text-sm font-medium mb-1 flex items-center gap-1">
+          <CalendarDays className="w-4 h-4 text-gray-500" /> Due Date
+        </label>
+        <DatePicker
+          selected={taskForm.dueDate}
+          onChange={(date) =>
+            setTaskForm((prev) => ({ ...prev, dueDate: date }))
+          }
+          className="border p-2 rounded w-full"
+          dateFormat="dd/MM/yyyy"
+          isClearable
+        />
+      </div>
+
+      <TextField
+        multiline
+        rows={4}
+        label="Notes"
+        value={taskForm.notes}
+        onChange={(e) =>
+          setTaskForm((prev) => ({ ...prev, notes: e.target.value }))
+        }
+        variant="filled"
+        fullWidth
+        margin="dense"
+      />
+
+      <div className="flex justify-center mt-4 gap-3">
+        <button
+          onClick={() => setShowTaskModal(false)}
+          className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={async () => {
+            try {
+              await updateTask({
+                _id: editingTask._id,
+                name: taskForm.title,
+                team: taskForm.team,
+                status: taskForm.status,
+                dueDate: taskForm.dueDate
+                  ? taskForm.dueDate.toISOString()
+                  : null,
+                notes: taskForm.notes,
+              }).unwrap();
+              toast.success("Task updated");
+              setShowTaskModal(false);
+              setEditingTask(null);
+              refetchTasks();
+            } catch (err) {
+              console.error(err);
+              toast.error("Failed to update task");
+            }
+          }}
+          className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
+        >
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+
       {/* Delete Confirmation Modal */}
       {deleteConfirmId && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+        <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-opacity-50 z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-sm">
             <p className="text-gray-800 mb-4">
               Are you sure you want to delete this task?
@@ -488,13 +647,13 @@ const TasksTable = () => {
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setDeleteConfirmId(null)}
-                className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400"
+                className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmDeleteTask}
-                className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700"
+                className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700 cursor-pointer"
               >
                 Delete
               </button>

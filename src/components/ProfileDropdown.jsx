@@ -56,7 +56,7 @@ const ProfileModal = ({ user, onClose, onSave }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-opacity-30 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-opacity-30 flex items-center justify-center z-50 backdrop-blur-sm">
       <div className="bg-white p-6 rounded-lg w-80 shadow-lg relative">
         <h2 className="text-lg font-semibold mb-4">Edit Profile</h2>
         <TextField
@@ -79,27 +79,27 @@ const ProfileModal = ({ user, onClose, onSave }) => {
         />
 
         <TextField
-  label="New Password"
-  type={showPassword ? "text" : "password"}
-  variant="outlined"
-  fullWidth
-  margin="dense"
-  value={password} // starts empty
-  placeholder="Leave blank to keep current password"
-  onChange={(e) => setPassword(e.target.value)}
-  InputProps={{
-    endAdornment: (
-      <InputAdornment position="end">
-        <IconButton
-          onClick={() => setShowPassword((prev) => !prev)}
-          edge="end"
-        >
-          {showPassword ? <VisibilityOff /> : <Visibility />}
-        </IconButton>
-      </InputAdornment>
-    ),
-  }}
-/>
+          label="New Password"
+          type={showPassword ? "text" : "password"}
+          variant="outlined"
+          fullWidth
+          margin="dense"
+          value={password} // starts empty
+          placeholder="Leave blank to keep current password"
+          onChange={(e) => setPassword(e.target.value)}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  edge="end"
+                >
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
 
 
         <TextField
@@ -158,7 +158,7 @@ const ProfileDropdown = () => {
 
 
   return (
-    <div className="relative z-50">
+    <div className="relative z-50 ">
       <DropdownMenu.Root>
         <DropdownMenu.Trigger asChild>
           <button className="focus:outline-none">

@@ -10,15 +10,14 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
+  Cell,
 } from "recharts";
 import { CheckCircle, Clock, ClipboardList, ListTodo } from "lucide-react";
-
-// ✅ RTK Query hook
 import { useGetAllTaskQuery } from "../redux/slices/api/taskApiSlice";
 
 const DashStats = () => {
   const dispatch = useDispatch();
-  const { data: tasks = [] } = useGetAllTaskQuery(); // fetch tasks automatically
+  const { data: tasks = [] } = useGetAllTaskQuery();
 
   const boxes = [
     {
@@ -27,6 +26,7 @@ const DashStats = () => {
       value: tasks.length,
       icon: <ClipboardList className="text-blue-500" />,
       bg: "bg-blue-50 rounded",
+      color: "#3b82f6", // blue
     },
     {
       key: "completed",
@@ -34,6 +34,7 @@ const DashStats = () => {
       value: tasks.filter((t) => t.status === "completed").length,
       icon: <CheckCircle className="text-green-500" />,
       bg: "bg-green-50 rounded",
+      color: "#22c55e", // green
     },
     {
       key: "inProgress",
@@ -41,6 +42,7 @@ const DashStats = () => {
       value: tasks.filter((t) => t.status === "inProgress").length,
       icon: <Clock className="text-yellow-500" />,
       bg: "bg-yellow-50 rounded",
+      color: "#facc15", // yellow
     },
     {
       key: "todo",
@@ -48,19 +50,20 @@ const DashStats = () => {
       value: tasks.filter((t) => t.status === "todo").length,
       icon: <ListTodo className="text-purple-500" />,
       bg: "bg-purple-50 rounded",
+      color: "#a855f7", // purple
     },
   ];
 
   const chartData = [
-    { name: "All", count: tasks.length },
-    { name: "To Do", count: tasks.filter((t) => t.status === "todo").length },
-    { name: "In Progress", count: tasks.filter((t) => t.status === "inProgress").length },
-    { name: "Completed", count: tasks.filter((t) => t.status === "completed").length },
+    { name: "All", count: tasks.length, color: "#3b82f6" },
+    { name: "Completed", count: tasks.filter((t) => t.status === "completed").length, color: "#22c55e" },
+    { name: "In Progress", count: tasks.filter((t) => t.status === "inProgress").length, color: "#facc15" },
+    { name: "To Do", count: tasks.filter((t) => t.status === "todo").length, color: "#a855f7" },
   ];
 
   return (
     <div className="w-full py-10 px-4">
-      <div className="mb-12 flex items-center gap-14 ">
+      <div className="mb-12 flex items-center gap-14">
         <div className="flex-grow border-t border-white opacity-100"></div>
         <h2 className="text-2xl font-bold text-white whitespace-nowrap">Dashboard</h2>
         <div className="flex-grow border-t border-white opacity-100"></div>
@@ -92,7 +95,11 @@ const DashStats = () => {
             <YAxis allowDecimals={false} />
             <Tooltip />
             <Legend />
-            <Bar dataKey="count" fill="#3b82f6" />
+            <Bar dataKey="count">
+              {chartData.map((entry, index) => (
+                <Cell key={index} fill={entry.color} />
+              ))}
+            </Bar>
           </BarChart>
         </ResponsiveContainer>
       </div>
