@@ -1,7 +1,6 @@
 import { apiSlice } from "../apiSlice";
 
 const USERS_URL = "/users";
-const TEAMS_URL = "/teams";
 
 export const userApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -13,6 +12,9 @@ export const userApiSlice = apiSlice.injectEndpoints({
         body: data,
         credentials: "include",
       }),
+      transformErrorResponse: (response) => {
+        return response.data?.message || "Failed to create user";
+      },
     }),
 
     updateUser: builder.mutation({
@@ -22,6 +24,21 @@ export const userApiSlice = apiSlice.injectEndpoints({
         body: data,
         credentials: "include",
       }),
+      transformErrorResponse: (response) => {
+        return response.data?.message || "Failed to update user profile";
+      },
+    }),
+
+    changePassword: builder.mutation({
+      query: (data) => ({
+        url: `${USERS_URL}/change-password`,
+        method: "PUT",
+        body: data,
+        credentials: "include",
+      }),
+      transformErrorResponse: (response) => {
+        return response.data?.message || "Failed to change password";
+      },
     }),
 
     getTeamLists: builder.query({
@@ -30,6 +47,9 @@ export const userApiSlice = apiSlice.injectEndpoints({
         method: "GET",
         credentials: "include",
       }),
+      transformErrorResponse: (response) => {
+        return response.data?.message || "Failed to fetch team lists";
+      },
     }),
 
     getUserTaskStatus: builder.query({
@@ -38,6 +58,9 @@ export const userApiSlice = apiSlice.injectEndpoints({
         method: "GET",
         credentials: "include",
       }),
+      transformErrorResponse: (response) => {
+        return response.data?.message || "Failed to fetch user task status";
+      },
     }),
 
     getNotifications: builder.query({
@@ -46,6 +69,9 @@ export const userApiSlice = apiSlice.injectEndpoints({
         method: "GET",
         credentials: "include",
       }),
+      transformErrorResponse: (response) => {
+        return response.data?.message || "Failed to fetch notifications";
+      },
     }),
 
     deleteUser: builder.mutation({
@@ -54,6 +80,9 @@ export const userApiSlice = apiSlice.injectEndpoints({
         method: "DELETE",
         credentials: "include",
       }),
+      transformErrorResponse: (response) => {
+        return response.data?.message || "Failed to delete user";
+      },
     }),
 
     userAction: builder.mutation({
@@ -63,6 +92,9 @@ export const userApiSlice = apiSlice.injectEndpoints({
         body: data,
         credentials: "include",
       }),
+      transformErrorResponse: (response) => {
+        return response.data?.message || "User action failed";
+      },
     }),
 
     markNotiAsRead: builder.mutation({
@@ -72,15 +104,9 @@ export const userApiSlice = apiSlice.injectEndpoints({
         body: data,
         credentials: "include",
       }),
-    }),
-
-    changePassword: builder.mutation({
-      query: (data = {}) => ({
-        url: `${USERS_URL}/change-password`,
-        method: "PUT",
-        body: data,
-        credentials: "include",
-      }),
+      transformErrorResponse: (response) => {
+        return response.data?.message || "Failed to mark notification as read";
+      },
     }),
 
     logout: builder.mutation({
@@ -89,61 +115,27 @@ export const userApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         credentials: "include",
       }),
+      transformErrorResponse: (response) => {
+        return response.data?.message || "Logout failed";
+      },
     }),
 
     // ===== TEAMS =====
-    getTeams: builder.query({
-      query: () => ({
-        url: TEAMS_URL,
-        method: "GET",
-        credentials: "include",
-      }),
-    }),
-
-    createTeam: builder.mutation({
-      query: (data) => ({
-        url: TEAMS_URL,
-        method: "POST",
-        body: data,
-        credentials: "include",
-      }),
-    }),
-
-    updateTeam: builder.mutation({
-      query: (data) => ({
-        url: `${TEAMS_URL}/${data.id}`,
-        method: "PUT",
-        body: data,
-        credentials: "include",
-      }),
-    }),
-
-    deleteTeam: builder.mutation({
-      query: (id) => ({
-        url: `${TEAMS_URL}/${id}`,
-        method: "DELETE",
-        credentials: "include",
-      }),
-    }),
+    // Note: Team endpoints are handled by teamApiSlice.js
+    // Use teamApiSlice hooks instead: useGetTeamsQuery, useCreateTeamMutation, etc.
   }),
 });
 
 export const {
-  // users
+  // Users
   useCreateUserMutation,
   useUpdateUserMutation,
+  useChangePasswordMutation,
   useGetTeamListsQuery,
   useGetUserTaskStatusQuery,
   useGetNotificationsQuery,
   useDeleteUserMutation,
   useUserActionMutation,
   useMarkNotiAsReadMutation,
-  useChangePasswordMutation,
   useLogoutMutation,
-
-  // teams
-  useGetTeamsQuery,
-  useCreateTeamMutation,
-  useUpdateTeamMutation,
-  useDeleteTeamMutation,
 } = userApiSlice;

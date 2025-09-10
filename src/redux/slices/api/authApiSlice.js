@@ -12,6 +12,9 @@ export const authApiSlice = apiSlice.injectEndpoints({
         body: data,
         credentials: "include",
       }),
+      transformErrorResponse: (response) => {
+        return response.data?.message || "Login failed";
+      },
     }),
     register: builder.mutation({
       query: (data) => ({
@@ -20,6 +23,9 @@ export const authApiSlice = apiSlice.injectEndpoints({
         body: data,
         credentials: "include",
       }),
+      transformErrorResponse: (response) => {
+        return response.data?.message || "Registration failed";
+      },
     }),
     logout: builder.mutation({
       query: () => ({
@@ -27,6 +33,9 @@ export const authApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         credentials: "include",
       }),
+      transformErrorResponse: (response) => {
+        return response.data?.message || "Logout failed";
+      },
     }),
   }),
 });

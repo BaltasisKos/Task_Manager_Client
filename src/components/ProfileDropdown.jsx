@@ -2,16 +2,19 @@ import React, { useState } from "react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { useLogoutMutation, useUpdateUserMutation } from "../redux/slices/api/userApiSlice";
-import { logout, setCredentials } from "../redux/slices/authSlice";
+import {
+  useLogoutMutation,
+  useUpdateUserMutation,
+  useChangePasswordMutation,
+} from "../redux/slices/api/userApiSlice";
+import { logout, updateUserProfile } from "../redux/slices/authSlice";
 import TextField from "@mui/material/TextField";
 import IconButton from "@mui/material/IconButton";
 import InputAdornment from "@mui/material/InputAdornment";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
-
-// Avatar component showing initials
+// ---------------- Avatar Component ----------------
 const InitialsAvatar = ({ fullName }) => {
   const initials = fullName
     ?.split(" ")
@@ -29,36 +32,58 @@ const InitialsAvatar = ({ fullName }) => {
   );
 };
 
-// Modal component for editing profile
+// ---------------- Profile Modal ----------------
 const ProfileModal = ({ user, onClose, onSave }) => {
   const dispatch = useDispatch();
-  const [updateUser] = useUpdateUserMutation(); // RTK Query mutation
+  const [updateUser] = useUpdateUserMutation();
+  const [changePassword] = useChangePasswordMutation();
+
   const [name, setName] = useState(user.name);
   const [email, setEmail] = useState(user.email);
+  const [title, setTitle] = useState(user.title || "");
   const [password, setPassword] = useState("");
-  const [title, setTitle] = useState(user.title || ""); 
-
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleSave = async () => {
-    try {
-      const payload = { name, email, title };
-      if (password) payload.password = password; // optional password update
+  try {
+    const payload = {};
+    if (name.trim() !== user.name) payload.name = name.trim();
+    if (email.trim() !== user.email) payload.email = email.trim();
+    if (title.trim() !== user.title) payload.title = title.trim();
 
-      const updatedUser = await updateUser(payload).unwrap(); // save to backend
-      dispatch(setCredentials(updatedUser)); // update Redux state immediately
-      onSave(updatedUser);
-      onClose();
-    } catch (err) {
-      console.error("Failed to update profile:", err);
-      alert(err.data?.message || "Update failed");
+    if (Object.keys(payload).length > 0) {
+      const response = await updateUser(payload).unwrap();
+      // Update only the changed fields in Redux state
+      if (response.user) {
+        dispatch(updateUserProfile({
+          name: response.user.name,
+          email: response.user.email,
+          title: response.user.title,
+          role: response.user.role,
+          isAdmin: response.user.isAdmin,
+        }));
+      }
+      onSave(response);
     }
-  };
+
+    if (password.trim()) {
+      await changePassword({ password: password.trim() }).unwrap();
+      alert("Password updated successfully");
+    }
+
+    onClose();
+  } catch (err) {
+    console.error("Failed to update profile:", err);
+    alert(err.data?.message || "Update failed");
+  }
+};
 
   return (
     <div className="fixed inset-0 bg-opacity-30 flex items-center justify-center z-50 backdrop-blur-sm">
       <div className="bg-white p-6 rounded-lg w-80 shadow-lg relative">
         <h2 className="text-lg font-semibold mb-4">Edit Profile</h2>
+
         <TextField
           label="Name"
           variant="outlined"
@@ -79,36 +104,32 @@ const ProfileModal = ({ user, onClose, onSave }) => {
         />
 
         <TextField
-          label="New Password"
-          type={showPassword ? "text" : "password"}
-          variant="outlined"
-          fullWidth
-          margin="dense"
-          value={password} // starts empty
-          placeholder="Leave blank to keep current password"
-          onChange={(e) => setPassword(e.target.value)}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton
-                  onClick={() => setShowPassword((prev) => !prev)}
-                  edge="end"
-                >
-                  {showPassword ? <VisibilityOff /> : <Visibility />}
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
-        />
-
-
-        <TextField
           label="Title"
           variant="outlined"
           fullWidth
           margin="dense"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+        />
+
+        <TextField
+          label="New Password"
+          type={showPassword ? "text" : "password"}
+          variant="outlined"
+          fullWidth
+          margin="dense"
+          placeholder="Leave blank to keep current password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton onClick={() => setShowPassword((prev) => !prev)} edge="end">
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
         />
 
         <div className="flex justify-end gap-2 mt-3">
@@ -120,23 +141,30 @@ const ProfileModal = ({ user, onClose, onSave }) => {
           </button>
           <button
             onClick={handleSave}
-            className="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
+            className={`px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 cursor-pointer ${
+              loading ? "opacity-50 cursor-not-allowed" : ""
+            }`}
+            disabled={loading}
           >
             Save
           </button>
-                </div>
-              </div>
-            </div>
-          );
-        };
+        </div>
+      </div>
+    </div>
+  );
+};
 
-// Main ProfileDropdown component
+// ---------------- Profile Dropdown ----------------
 const ProfileDropdown = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
   const [triggerLogout] = useLogoutMutation();
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  if (!user) return null;
+
+  const capitalize = (str) => str?.charAt(0).toUpperCase() + str?.slice(1);
 
   const handleLogout = async () => {
     try {
@@ -148,17 +176,8 @@ const ProfileDropdown = () => {
     }
   };
 
-  const handleProfileSave = (updatedUser) => {
-    // Redux state is already updated in modal save
-  };
-
-  if (!user) return null;
-
-  const capitalize = (str) => str?.charAt(0).toUpperCase() + str?.slice(1);
-
-
   return (
-    <div className="relative z-50 ">
+    <div className="relative z-50">
       <DropdownMenu.Root>
         <DropdownMenu.Trigger asChild>
           <button className="focus:outline-none">
@@ -212,7 +231,7 @@ const ProfileDropdown = () => {
         <ProfileModal
           user={user}
           onClose={() => setIsModalOpen(false)}
-          onSave={handleProfileSave}
+          onSave={() => {}}
         />
       )}
     </div>

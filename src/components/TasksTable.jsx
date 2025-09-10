@@ -26,7 +26,7 @@ import {
 
 import { useGetTeamsQuery } from "../redux/slices/api/teamApiSlice";
 
-const TasksTable = () => {
+const TasksTable = ({ highlightTask, searchTerm }) => {
   // --- Queries & Mutations ---
   const { data: tasks = [], isLoading, isError, refetch: refetchTasks } = useGetAllTaskQuery(undefined, {
   refetchOnMountOrArgChange: true,
@@ -98,11 +98,26 @@ const TasksTable = () => {
 
   // --- Filtered Tasks ---
 const filteredTasks = tasks.filter((task) => {
+  // Apply status filter
+  let statusMatch = false;
   if (selectedFilter === "allTasks") {
-    return task.status !== "deleted" && task.status !== "completed";
+    statusMatch = task.status !== "deleted" && task.status !== "completed";
   } else {
-    return task.status === selectedFilter && task.status !== "deleted";
+    statusMatch = task.status === selectedFilter && task.status !== "deleted";
   }
+
+  // Apply search filter if searchTerm is provided
+  if (searchTerm && searchTerm.trim()) {
+    const searchLower = searchTerm.toLowerCase();
+    const taskMatches = 
+      task.name?.toLowerCase().includes(searchLower) ||
+      task.notes?.toLowerCase().includes(searchLower) ||
+      task.status?.toLowerCase().includes(searchLower);
+    
+    return statusMatch && taskMatches;
+  }
+
+  return statusMatch;
 });
 
 
@@ -119,26 +134,35 @@ const filteredTasks = tasks.filter((task) => {
   };
 
   const handleAddTask = async () => {
-    if (!title.trim()) return setTitleError("Title is required.");
-    try {
-      await createTask({
-        name: title,
-        teamId: team,
-        members: teamMembers, // automatically assign team members
-        status,
-        createdAt: createdAt.toISOString(),
-        dueDate: dueDate ? dueDate.toISOString() : null,
-        notes,
-      }).unwrap();
-      toast.success("Task added");
-      resetAddForm();
-      setShowAddModal(false);
-      refetchTasks();
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to add task");
-    }
-  };
+  if (!title.trim()) {
+    return setTitleError("Title is required.");
+  }
+  if (!team) {
+    toast.error("Please select a team");
+    return;
+  }
+
+  try {
+    await createTask({
+      name: title,
+      teamId: team,
+      members: teamMembers, // automatically assign team members
+      status,
+      createdAt: createdAt.toISOString(),
+      dueDate: dueDate ? dueDate.toISOString() : null,
+      notes,
+    }).unwrap();
+
+    toast.success("Task added");
+    resetAddForm();
+    setShowAddModal(false);
+    refetchTasks();
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to add task");
+  }
+};
+
 
   const handleTeamChange = (teamId) => {
     setTeam(teamId);
@@ -226,7 +250,14 @@ const filteredTasks = tasks.filter((task) => {
       {/* Header */}
       <div className="flex items-center gap-14 mb-10">
         <div className="flex-grow border-t border-white"></div>
-        <h2 className="text-2xl font-bold text-white">Tasks</h2>
+        <h2 className="text-2xl font-bold text-white">
+          Tasks
+          {searchTerm && (
+            <span className="text-sm font-normal ml-2 text-yellow-200">
+              (Search: "{searchTerm}")
+            </span>
+          )}
+        </h2>
         <div className="flex-grow border-t border-white"></div>
       </div>
 
@@ -260,7 +291,9 @@ const filteredTasks = tasks.filter((task) => {
               {filteredTasks.map((task) => (
                 <tr
                   key={task._id}
-                  className="border-b border-gray-600 hover:bg-blue-400"
+                  className={`border-b border-gray-600 hover:bg-blue-400 ${
+                    highlightTask === task._id ? 'bg-yellow-200 border-yellow-400' : ''
+                  }`}
                 >
                   <td className="p-3 text-center">
                     {editId === task._id ? (
@@ -434,6 +467,7 @@ const filteredTasks = tasks.filter((task) => {
               fullWidth
               variant="filled"
               margin="dense"
+              required
             >
               {teamsData.map((t) => (
                 <MenuItem key={t._id} value={t._id}>

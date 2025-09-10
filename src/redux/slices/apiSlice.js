@@ -3,11 +3,13 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 const API_URL = "http://localhost:5000/api";
 
 export const apiSlice = createApi({
-  reducerPath: "api", // required
+  reducerPath: "api",
   baseQuery: fetchBaseQuery({
     baseUrl: API_URL,
-    credentials: "include", // include cookies for auth
+    credentials: "include", // This ensures cookies are sent with requests
+    // Note: We're using HTTP-only cookies for authentication, not Bearer tokens
+    // The server will read the JWT from the cookie automatically
   }),
-  tagTypes: ["User", "Task", "Teams"], // optional, useful for cache invalidation
+  tagTypes: ["User", "Task", "Teams"],
   endpoints: (builder) => ({}),
 });

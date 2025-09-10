@@ -5,6 +5,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { setCredentials } from "../redux/slices/authSlice";
 import { useDispatch } from "react-redux";
+import { useLoginMutation, useRegisterMutation } from "../redux/slices/api/authApiSlice";
 
 
 // Validation schemas for login and signup
@@ -27,7 +28,11 @@ const signupSchema = yup.object().shape({
 function Login() {
   const location = useLocation();
   const navigate = useNavigate();
-  const dispatch = useDispatch(); // <-- ADD THIS
+  const dispatch = useDispatch();
+  
+  // RTK Query mutations
+  const [login, { isLoading: isLoginLoading }] = useLoginMutation();
+  const [registerUser, { isLoading: isRegisterLoading }] = useRegisterMutation();
 
   const isLoginMode = location.pathname === "/log-in";
   const schema = isLoginMode ? loginSchema : signupSchema;
@@ -39,49 +44,31 @@ function Login() {
   } = useForm({ resolver: yupResolver(schema) });
 
   const onSubmit = async (data) => {
-    const API_URL = "http://localhost:5000/api/users/";
-
     try {
-      let response;
       let result;
 
       if (isLoginMode) {
-        response = await fetch(`${API_URL}login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: data.email, password: data.password }),
-        });
-
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.message || "Login failed");
-        }
-
-        result = await response.json();
+        // Use RTK Query login mutation
+        result = await login({
+          email: data.email,
+          password: data.password
+        }).unwrap();
+        
         console.log("Login successful:", result);
-        dispatch(setCredentials(result)); // <-- dispatch now works
+        dispatch(setCredentials(result));
         navigate("/dashboard");
       } else {
+        // Use RTK Query register mutation
         const { confirmPassword, ...userData } = data;
-        response = await fetch(`${API_URL}register`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(userData),
-        });
-
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.message || "Signup failed");
-        }
-
-        result = await response.json();
+        result = await registerUser(userData).unwrap();
+        
         console.log("Signup successful:", result);
         dispatch(setCredentials(result));
         navigate("/dashboard");
       }
     } catch (error) {
-      console.error("Error:", error.message);
-      alert(error.message || "Something went wrong");
+      console.error("Error:", error);
+      alert(error.data?.message || error.message || "Something went wrong");
     }
   };
 
@@ -212,10 +199,13 @@ function Login() {
 
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || isLoginLoading || isRegisterLoading}
               className="w-full p-3 bg-gradient-to-r from-blue-700 via-cyan-600 to-cyan-200 text-white rounded-full text-lg font-medium hover:opacity-90 transition cursor-pointer disabled:opacity-50"
             >
-              {isLoginMode ? "Login" : "Signup"}
+              {isSubmitting || isLoginLoading || isRegisterLoading 
+                ? "Loading..." 
+                : (isLoginMode ? "Login" : "Signup")
+              }
             </button>
 
             <p className="text-center text-gray-600 cursor-default">

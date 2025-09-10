@@ -10,8 +10,12 @@ export const taskApiSlice = apiSlice.injectEndpoints({
         url: TASKS_URL,
         method: "POST",
         body: data,
+        credentials: "include",
       }),
       invalidatesTags: [{ type: "Tasks", id: "LIST" }],
+      transformErrorResponse: (response) => {
+        return response.data?.message || "Failed to create task";
+      },
     }),
 
     // READ ALL TASKS
@@ -19,6 +23,7 @@ export const taskApiSlice = apiSlice.injectEndpoints({
       query: () => ({
         url: TASKS_URL,
         method: "GET",
+        credentials: "include",
       }),
       providesTags: (result) =>
         result
@@ -27,6 +32,9 @@ export const taskApiSlice = apiSlice.injectEndpoints({
               { type: "Task", id: "LIST" },
             ]
           : [{ type: "Task", id: "LIST" }],
+      transformErrorResponse: (response) => {
+        return response.data?.message || "Failed to fetch tasks";
+      },
     }),
 
     // READ SINGLE TASK
@@ -34,8 +42,12 @@ export const taskApiSlice = apiSlice.injectEndpoints({
       query: (id) => ({
         url: `${TASKS_URL}/${id}`,
         method: "GET",
+        credentials: "include",
       }),
       providesTags: (result, error, id) => [{ type: "Task", id }],
+      transformErrorResponse: (response) => {
+        return response.data?.message || "Failed to fetch task";
+      },
     }),
 
     // UPDATE TASK
@@ -44,11 +56,15 @@ export const taskApiSlice = apiSlice.injectEndpoints({
         url: `${TASKS_URL}/${data._id}`,
         method: "PUT",
         body: data,
+        credentials: "include",
       }),
       invalidatesTags: (result, error, { _id }) => [
         { type: "Task", id: _id },
         { type: "Task", id: "LIST" },
       ],
+      transformErrorResponse: (response) => {
+        return response.data?.message || "Failed to update task";
+      },
     }),
 
     // SOFT DELETE (move to archive)
@@ -57,21 +73,29 @@ export const taskApiSlice = apiSlice.injectEndpoints({
         url: `${TASKS_URL}/${id}`,
         method: "PATCH",
         body: { status: "deleted" }, // moves task to archive
+        credentials: "include",
       }),
       invalidatesTags: (result, error, id) => [
         { type: "Task", id },
         { type: "Task", id: "LIST" },
       ],
+      transformErrorResponse: (response) => {
+        return response.data?.message || "Failed to archive task";
+      },
     }),
 
     // RESTORE TASK (from archive)
     restoreTask: builder.mutation({
-  query: (id) => ({
-    url: `/tasks/${id}/restore`,  // matches backend route
-    method: "PATCH",
-  }),
-  invalidatesTags: [{ type: "Task", id: "LIST" }], // refresh task list
-}),
+      query: (id) => ({
+        url: `${TASKS_URL}/${id}/restore`,  // matches backend route
+        method: "PATCH",
+        credentials: "include",
+      }),
+      invalidatesTags: [{ type: "Task", id: "LIST" }], // refresh task list
+      transformErrorResponse: (response) => {
+        return response.data?.message || "Failed to restore task";
+      },
+    }),
 
 
     // PERMANENT DELETE
@@ -79,11 +103,27 @@ export const taskApiSlice = apiSlice.injectEndpoints({
       query: (id) => ({
         url: `${TASKS_URL}/${id}`,
         method: "DELETE",
+        credentials: "include",
       }),
       invalidatesTags: (result, error, id) => [
         { type: "Task", id },
         { type: "Task", id: "LIST" },
       ],
+      transformErrorResponse: (response) => {
+        return response.data?.message || "Failed to delete task";
+      },
+    }),
+
+    // SEARCH ALL (tasks and users)
+    searchAll: builder.query({
+      query: (searchTerm) => ({
+        url: `${TASKS_URL}/search?q=${encodeURIComponent(searchTerm)}`,
+        method: "GET",
+        credentials: "include",
+      }),
+      transformErrorResponse: (response) => {
+        return response.data?.message || "Search failed";
+      },
     }),
   }),
 });
@@ -95,5 +135,6 @@ export const {
   useUpdateTaskMutation,
   useSoftDeleteTaskMutation,
   useRestoreTaskMutation,
-  useDeleteTaskMutation, // now fully exists
+  useDeleteTaskMutation,
+  useSearchAllQuery,
 } = taskApiSlice;

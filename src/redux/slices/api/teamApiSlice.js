@@ -13,6 +13,9 @@ export const teamApiSlice = apiSlice.injectEndpoints({
         credentials: "include",
       }),
       providesTags: ["Teams"],
+      transformErrorResponse: (response) => {
+        return response.data?.message || "Failed to fetch teams";
+      },
     }),
 
     // 🔹 Fetch archived teams only
@@ -23,6 +26,9 @@ export const teamApiSlice = apiSlice.injectEndpoints({
         credentials: "include",
       }),
       providesTags: ["ArchivedTeams"], // separate tag
+      transformErrorResponse: (response) => {
+        return response.data?.message || "Failed to fetch archived teams";
+      },
     }),
 
     // Create a new team
@@ -34,6 +40,9 @@ export const teamApiSlice = apiSlice.injectEndpoints({
         credentials: "include",
       }),
       invalidatesTags: ["Teams"],
+      transformErrorResponse: (response) => {
+        return response.data?.message || "Failed to create team";
+      },
     }),
 
     // Update a team
@@ -45,6 +54,9 @@ export const teamApiSlice = apiSlice.injectEndpoints({
         credentials: "include",
       }),
       invalidatesTags: ["Teams"],
+      transformErrorResponse: (response) => {
+        return response.data?.message || "Failed to update team";
+      },
     }),
 
     // Permanently delete a team
@@ -55,6 +67,9 @@ export const teamApiSlice = apiSlice.injectEndpoints({
         credentials: "include",
       }),
       invalidatesTags: ["ArchivedTeams", "Teams"], // invalidate archive list
+      transformErrorResponse: (response) => {
+        return response.data?.message || "Failed to delete team";
+      },
     }),
 
     // Soft-delete (archive) a team
@@ -65,6 +80,9 @@ export const teamApiSlice = apiSlice.injectEndpoints({
         credentials: "include",
       }),
       invalidatesTags: ["Teams", "ArchivedTeams"], // will affect active list
+      transformErrorResponse: (response) => {
+        return response.data?.message || "Failed to archive team";
+      },
     }),
 
     // Restore an archived team
@@ -75,6 +93,9 @@ export const teamApiSlice = apiSlice.injectEndpoints({
         credentials: "include",
       }),
       invalidatesTags: ["ArchivedTeams", "Teams"], // refresh both
+      transformErrorResponse: (response) => {
+        return response.data?.message || "Failed to restore team";
+      },
     }),
   }),
 });
