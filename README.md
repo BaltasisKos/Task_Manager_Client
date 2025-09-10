@@ -13,9 +13,7 @@ Task Manager is a final exam project for Coding Factory 7 of Athens Univercity o
 - [How to Use](#how-to-use)  
 - [Deployment](#deployment)  
 - [Build](#build)  
-- [Screenshots & Demo](#screenshots--demo)  
-- [Contributing](#contributing)  
-- [License](#license)
+
 
 ---
 
