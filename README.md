@@ -4,19 +4,6 @@ Task Manager is a final exam project for Coding Factory 7 of Athens Univercity o
 
 ---
 
-## Table of Contents
-
-- [Features](#features)  
-- [Technology Stack](#technology-stack)  
-- [Setup & Development](#setup--development)  
-- [Project Structure](#project-structure)  
-- [How to Use](#how-to-use)  
-- [Deployment](#deployment)  
-- [Build](#build)  
-
-
----
-
 ## Features
 
 - Create, update, and delete tasks  
