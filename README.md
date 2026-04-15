@@ -4,6 +4,16 @@ Task Manager is a final exam project for Coding Factory 7 of Athens Univercity o
 
 ---
 
+<p align="center">
+  <img src="src/assets/screenshots/Screenshot%202026-04-15%20180544.png" alt="Task Manager Dashboard" width="100%">
+</p>
+
+<p align="center">
+  <img src="src/assets/screenshots/Screenshot%202026-04-15%20180701.png" width="48%" />
+  <img src="src/assets/screenshots/Screenshot%202026-04-15%20180823.png" width="48%" />
+</p>
+
+
 ## Features
 
 - Create, update, and delete tasks  
